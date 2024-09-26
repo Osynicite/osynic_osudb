@@ -1,0 +1,19 @@
+[package]
+name = "osynic_osudb"
+version = "0.1.0"
+edition = "2021"
+authors = [
+    "Hako Chest <zoneherobrine@gmail.com>"
+]
+rust-version = "1.80.0"
+description = "The OSU!DB functions of Osynic App"
+keywords = ["osynic", "osu", "osudb", "management", "api"]
+categories = ["game-development","games"]
+license = "MIT"
+documentation = "https://docs.rs/osynic_osudb"
+repository = "https://github.com/zoneherobrine/osynic_osudb"
+
+[dependencies]
+nom = "7"
+chrono = { version = "0.4", features = ["serde"] }
+serde = { version = "1.0", features = ["derive"] }
