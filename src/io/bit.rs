@@ -1,4 +1,4 @@
-trait Bit {
+pub trait Bit {
     fn bit(&self, pos: u32) -> bool;
     fn bit_range(&self, pos: std::ops::Range<u32>) -> Self;
     fn set_bit(&mut self, pos: u32, val: bool);
