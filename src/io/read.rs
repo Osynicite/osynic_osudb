@@ -26,7 +26,6 @@ pub use nom::number::complete::le_u64 as long;
 pub use nom::number::complete::le_u8 as byte;
 
 
-
 pub fn osudb(bytes: &[u8]) -> IResult<&[u8], Osudb> {
     let (rem, version) = int(bytes)?;
     let (rem, folder_count) = int(rem)?;
@@ -105,7 +104,7 @@ pub fn beatmap(bytes: &[u8], version: u32) -> IResult<&[u8], Beatmap> {
     let (rem, mysterious_last_modified) = int(rem)?;
     let (rem, mania_scroll_speed) = byte(rem)?;
 
-    let map = Beatmap {
+    let beatmap = Beatmap {
         artist_ascii,
         artist_unicode,
         title_ascii,
@@ -161,9 +160,8 @@ pub fn beatmap(bytes: &[u8], version: u32) -> IResult<&[u8], Beatmap> {
         mania_scroll_speed,
     };
 
-    Ok((rem, map))
+    Ok((rem, beatmap))
 }
-
 
 
 
