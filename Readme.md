@@ -30,6 +30,16 @@ MIT
 
 # Progress
 
+- entity
+  - Osudb
+  - Beatmaps
+  - Songs(Sets)
+  - Collections
+- record
+  - Scores
+  - Replay
+- Mods
+- Mode
 
 # Contributing
 

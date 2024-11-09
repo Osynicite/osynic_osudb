@@ -1,3 +1,6 @@
+pub mod bit;
 pub mod error;
 pub mod origin;
-pub mod extend;
+
+pub mod entity;
+pub mod io;

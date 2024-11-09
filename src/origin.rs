@@ -1,9 +1,5 @@
 #![allow(unused_imports)]
 #![allow(dead_code)]
-// use crate::{
-//     boolean, byte, datetime, double, int, long, opt_string, short, single, Bit, Error, ModSet,
-//     Mode, PrefixedList, SimpleWritable, Writable,
-// };
 const CHANGE_20140609: u32 = 20140609;
 const CHANGE_20191106: u32 = 20191106;
 
@@ -12,7 +8,6 @@ pub use crate::error::{Result, Error};
 use std::{
     fmt,
     fs::{self, File},
-    io::{self, BufWriter, Write},
     ops,
     path::Path,convert::identity, hash::Hash
 };
@@ -25,7 +20,6 @@ use nom::{
 };
 use chrono::{DateTime, Duration, TimeZone, Utc};
 use serde::{Deserialize, Serialize};
-
 
 trait Bit {
     fn bit(&self, pos: u32) -> bool;
@@ -123,6 +117,7 @@ fn datetime_to_windows_ticks(datetime: &DateTime<Utc>) -> u64 {
     let ticks_since: i64 = (duration * 10).num_microseconds().unwrap_or(0);
     ticks_since.max(0) as u64
 }
+
 // The variable-length ULEB128 encoding used mainly for string lengths.
 fn uleb(bytes: &[u8]) -> IResult<&[u8], usize> {
     let (rem, prelude) = take_while(|b: u8| b.bit(7))(bytes)?;
@@ -463,7 +458,7 @@ pub struct TimingPoint {
     pub inherits: bool,
 }
 
-/// TODO: Figure out grades.
+/// TODO: osu-db: Figure out grades.
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
 pub enum Grade {
     SSPlus,
