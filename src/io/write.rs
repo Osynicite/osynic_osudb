@@ -6,14 +6,44 @@ use crate::{CHANGE_20140609, CHANGE_20191106};
 use crate::error::Result;
 use crate::io::read::*;
 use crate::io::bit::Bit;
-use crate::entity::collectiondb::CollectionDB;
-use crate::entity::collection::Collection;
-use crate::entity::osudb::Osudb;
-use crate::entity::beatmap::Beatmap;
-use crate::entity::field::rank::RankedStatus;
-use crate::entity::field::time::TimingPoint;
-use crate::entity::field::grade::Grade;
-use crate::entity::field::modification::ModSet;
+use crate::entity::scores::scoresdb::ScoresDB;
+use crate::entity::scores::scores::Scores;
+use crate::entity::scores::field::replay::Replay;
+use crate::entity::scores::field::action::Action;
+use crate::entity::collection::collectiondb::CollectionDB;
+use crate::entity::collection::collection::Collection;
+use crate::entity::osu::osudb::OsuDB;
+use crate::entity::osu::beatmap::Beatmap;
+use crate::entity::osu::field::rank::RankedStatus;
+use crate::entity::osu::field::time::TimingPoint;
+use crate::entity::osu::field::grade::Grade;
+use crate::entity::osu::field::modification::ModSet;
+
+const DEFAULT_COMPRESSION_LEVEL: u32 = 5;
+
+impl Replay {
+    pub fn to_writer<W: Write>(
+        &self,
+        mut out: W,
+        compression_level: Option<u32>,
+    ) -> Result<()> {
+        self.wr_args(
+            &mut out,
+            Some(compression_level.unwrap_or(DEFAULT_COMPRESSION_LEVEL)),
+        )
+    }
+    pub fn save<P: AsRef<Path>>(&self, path: P, compression_level: Option<u32>) -> Result<()> {
+        self.to_writer(BufWriter::new(std::fs::File::create(path)?), compression_level)
+    }
+}
+impl ScoresDB {
+    pub fn to_writer<W: Write>(&self, mut out: W) -> Result<()> {
+        self.wr(&mut out)
+    }
+    pub fn save<P: AsRef<Path>>(&self, path: P) -> Result<()> {
+        self.to_writer(BufWriter::new(std::fs::File::create(path)?))
+    }
+}
 
 
 impl CollectionDB {
@@ -25,7 +55,7 @@ impl CollectionDB {
     }
 }
 
-impl Osudb {
+impl OsuDB {
     pub fn to_writer<W: Write>(&self, mut out: W) -> Result<()> {
         self.wr(&mut out)
     }
@@ -114,6 +144,49 @@ writer!(Option<String> [this,out] {
         None => 0x00_u8.wr(out)?,
     }
 });
+writer!(Replay [this,out,compress_data: Option<u32>] {
+    this.mode.raw().wr(out)?;
+    this.version.wr(out)?;
+    this.beatmap_hash.wr(out)?;
+    this.player_name.wr(out)?;
+    this.replay_hash.wr(out)?;
+    this.count_300.wr(out)?;
+    this.count_100.wr(out)?;
+    this.count_50.wr(out)?;
+    this.count_geki.wr(out)?;
+    this.count_katsu.wr(out)?;
+    this.count_miss.wr(out)?;
+    this.score.wr(out)?;
+    this.max_combo.wr(out)?;
+    this.perfect_combo.wr(out)?;
+    this.mods.bits().wr(out)?;
+    this.life_graph.wr(out)?;
+    this.timestamp.wr(out)?;
+    if let Some(compression_level) = compress_data {
+        write_replay_data(
+            this.replay_data.as_deref(),
+            this.raw_replay_data.as_deref(),
+            out,
+            compression_level
+        )?;
+    }else{
+        0xffffffff_u32.wr(out)?;
+    }
+    this.online_score_id.wr(out)?;
+});
+
+writer!(Action [this,out] {
+    write!(out, "{}|{}|{}|{},", this.delta,this.x,this.y,this.z)?;
+});
+
+writer!(ScoresDB [this,out] {
+    this.version.wr(out)?;
+    PrefixedList(&this.beatmaps).wr(out)?;
+});
+writer!(Scores [this,out] {
+    this.hash.wr(out)?;
+    PrefixedList(&this.scores).wr_args(out,None)?;
+});
 
 writer!(CollectionDB [this,out] {
     this.version.wr(out)?;
@@ -125,7 +198,7 @@ writer!(Collection [this,out] {
     PrefixedList(&this.beatmap_hashes).wr(out)?;
 });
 
-writer!(Osudb [this, out] {
+writer!(OsuDB [this, out] {
     this.version.wr(out)?;
     this.folder_count.wr(out)?;
     write_option(out,this.unban_date,0_u64)?;
@@ -233,6 +306,38 @@ writer!(RankedStatus [this,out] this.raw().wr(out)?);
 
 writer!(Grade [this,out] this.raw().wr(out)?);
 
+fn write_replay_data<W: Write>(
+    actions: Option<&[Action]>,
+    raw: Option<&[u8]>,
+    out: &mut W,
+    compression_level: u32,
+) -> Result<()> {
+    let mut raw = raw.as_deref();
+    let compress_buf: Vec<u8>;
+    #[cfg(feature = "compression")]
+    {
+        if let Some(actions) = actions {
+            use xz2::{
+                stream::{LzmaOptions, Stream},
+                write::XzEncoder,
+            };
+            let mut encoder = XzEncoder::new_stream(
+                Vec::new(),
+                Stream::new_lzma_encoder(&LzmaOptions::new_preset(compression_level)?)?,
+            );
+            for action in actions.iter() {
+                action.wr(&mut encoder)?;
+            }
+            compress_buf = encoder.finish()?;
+            raw = Some(&compress_buf[..]);
+        }
+    }
+    let raw = raw.unwrap_or_default();
+    //Prefix the data with its length
+    (raw.len() as u32).wr(out)?;
+    out.write_all(raw)?;
+    Ok(())
+}
 
 fn write_option<W: Write, T: SimpleWritable, D: SimpleWritable>(
     out: &mut W,

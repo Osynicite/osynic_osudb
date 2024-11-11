@@ -1,6 +1,6 @@
 //! Parsing for the `collection.db` file, containing all user collections.
 use serde::{Deserialize, Serialize};
-use crate::entity::collection::Collection;
+use crate::entity::collection::collection::Collection;
 
 #[derive(Clone, Debug, PartialEq,Serialize, Deserialize)]
 pub struct CollectionDB {

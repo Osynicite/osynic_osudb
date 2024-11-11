@@ -1,6 +1,3 @@
-// Placeholder
-pub mod osudb;
-pub mod beatmap;
-pub mod collectiondb;
+pub mod osu;
 pub mod collection;
-pub mod field;
+pub mod scores;

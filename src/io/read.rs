@@ -1,8 +1,8 @@
 use nom::{
-    bytes::complete::{tag, take, take_while},
-    combinator::{cond, map, map_opt, map_res},
+    bytes::complete::{tag, take, take_while, take_while1},
+    combinator::{cond, map, map_opt, map_res, opt},
     error::{Error as NomError, ErrorKind as NomErrorKind},
-    multi::length_count,
+    multi::{length_count, length_data, many0},
     Err as NomErr, IResult
 };
 use std::path::Path;
@@ -12,15 +12,19 @@ use chrono::{DateTime, Duration, TimeZone, Utc};
 use crate::{CHANGE_20140609, CHANGE_20191106};
 use crate::error::Result;
 use crate::io::bit::Bit;
-use crate::entity::collectiondb::CollectionDB;
-use crate::entity::collection::Collection;
-use crate::entity::osudb::Osudb;
-use crate::entity::beatmap::Beatmap;
-use crate::entity::field::rank::RankedStatus;
-use crate::entity::field::time::TimingPoint;
-use crate::entity::field::grade::Grade;
-use crate::entity::field::modification::ModSet;
-use crate::entity::field::mode::Mode;
+use crate::entity::scores::scoresdb::ScoresDB;
+use crate::entity::scores::scores::Scores;
+use crate::entity::scores::field::replay::Replay;
+use crate::entity::scores::field::action::Action;
+use crate::entity::collection::collectiondb::CollectionDB;
+use crate::entity::collection::collection::Collection;
+use crate::entity::osu::osudb::OsuDB;
+use crate::entity::osu::beatmap::Beatmap;
+use crate::entity::osu::field::rank::RankedStatus;
+use crate::entity::osu::field::time::TimingPoint;
+use crate::entity::osu::field::grade::Grade;
+use crate::entity::osu::field::modification::ModSet;
+use crate::entity::osu::field::mode::Mode;
 
 pub use nom::number::complete::le_f32 as single;
 pub use nom::number::complete::le_f64 as double;
@@ -28,6 +32,24 @@ pub use nom::number::complete::le_u16 as short;
 pub use nom::number::complete::le_u32 as int;
 pub use nom::number::complete::le_u64 as long;
 pub use nom::number::complete::le_u8 as byte;
+
+impl Replay {
+    pub fn from_bytes(bytes: &[u8]) -> Result<Replay> {
+        replay(bytes, true).map(|(_rem, replay)| replay)
+    }
+    pub fn from_file<P: AsRef<Path>>(path: P) -> Result<Replay> {
+        Self::from_bytes(&std::fs::read(path)?)
+    }
+}
+
+impl ScoresDB {
+    pub fn from_bytes(bytes: &[u8]) -> Result<ScoresDB> {
+        scores(bytes).map(|(_rem, scores)| scores)
+    }
+    pub fn from_file<P: AsRef<Path>>(path: P) -> Result<ScoresDB> {
+        Self::from_bytes(&std::fs::read(path)?)
+    }
+}
 
 impl CollectionDB {
     pub fn from_bytes(bytes: &[u8]) -> Result<CollectionDB> {
@@ -40,13 +62,46 @@ impl CollectionDB {
 
 
 
-impl Osudb {
-    pub fn from_bytes(bytes: &[u8]) -> Result<Osudb> {
+impl OsuDB {
+    pub fn from_bytes(bytes: &[u8]) -> Result<OsuDB> {
         Ok(osudb(bytes).map(|(_rem, osudb)| osudb)?)
     }
-    pub fn from_file<P: AsRef<Path>>(path: P) -> Result<Osudb> {
+    pub fn from_file<P: AsRef<Path>>(path: P) -> Result<OsuDB> {
         Self::from_bytes(&std::fs::read(path)?)
     }
+}
+
+
+pub fn scores(bytes: &[u8]) -> Result<(&[u8], ScoresDB)> {
+    let (rem, version) = int(bytes)?;
+    let (mut rem, len) = int(rem)?;
+    let mut beatmaps = Vec::with_capacity(len as usize);
+
+    for _ in 0..len {
+        let (rem_, beatmap_scores) = beatmap_scores(rem)?;
+        beatmaps.push(beatmap_scores);
+        rem = rem_;
+    }
+
+    let list = ScoresDB { version, beatmaps };
+
+    Ok((rem, list))
+}
+
+pub fn beatmap_scores(bytes: &[u8]) -> Result<(&[u8], Scores)> {
+    let (rem, hash) = opt_string(bytes)?;
+    let (mut rem, len) = int(rem)?;
+    let mut scores = Vec::with_capacity(len as usize);
+
+    for _ in 0..len {
+        let (rem_, replay) = replay(rem, false)?;
+        rem = rem_;
+        scores.push(replay);
+    }
+
+    let scores = Scores { hash, scores };
+
+    Ok((rem, scores))
 }
 
 pub fn collections(bytes: &[u8]) -> IResult<&[u8], CollectionDB> {
@@ -73,7 +128,7 @@ pub fn collection(bytes: &[u8]) -> IResult<&[u8], Collection> {
     Ok((rem, collection))
 }
 
-pub fn osudb(bytes: &[u8]) -> IResult<&[u8], Osudb> {
+pub fn osudb(bytes: &[u8]) -> IResult<&[u8], OsuDB> {
     let (rem, version) = int(bytes)?;
     let (rem, folder_count) = int(rem)?;
     let (rem, account_unlocked) = boolean(rem)?;
@@ -82,7 +137,7 @@ pub fn osudb(bytes: &[u8]) -> IResult<&[u8], Osudb> {
     let (rem, beatmaps) = length_count(map(int, identity), |bytes| beatmap(bytes, version))(rem)?;
     let (rem, user_permissions) = int(rem)?;
 
-    let osudb = Osudb {
+    let osudb = OsuDB {
         version,
         folder_count,
         unban_date: build_option(account_unlocked, unlock_date),
@@ -312,6 +367,138 @@ pub fn ranked_status(bytes: &[u8]) -> IResult<&[u8], RankedStatus> {
 
 pub fn grade(bytes: &[u8]) -> IResult<&[u8], Grade> {
     map_opt(byte, Grade::from_raw)(bytes)
+}
+
+fn parse_replay_data(raw: Option<&[u8]>) -> Result<Option<Vec<Action>>> {
+    #[cfg(feature = "compression")]
+    {
+        if let Some(raw) = raw {
+            use xz2::{stream::Stream, write::XzDecoder};
+            use std::io::Write;
+
+            let mut decoder =
+                XzDecoder::new_stream(Vec::new(), Stream::new_lzma_decoder(u64::MAX)?);
+            decoder.write_all(raw)?;
+            let data = decoder.finish()?;
+            let actions = actions(&data)?.1;
+            return Ok(Some(actions));
+        }
+    }
+    Ok(None)
+}
+
+
+
+pub(crate) fn replay(bytes: &[u8], standalone: bool) -> Result<(&[u8], Replay)> {
+    let (rem, mode) = map_opt(byte, Mode::from_raw)(bytes)?;
+    let (rem, version) = int(rem)?;
+    let (rem, beatmap_hash) = opt_string(rem)?;
+    let (rem, player_name) = opt_string(rem)?;
+    let (rem, replay_hash) = opt_string(rem)?;
+    let (rem, count_300) = short(rem)?;
+    let (rem, count_100) = short(rem)?;
+    let (rem, count_50) = short(rem)?;
+    let (rem, count_geki) = short(rem)?;
+    let (rem, count_katsu) = short(rem)?;
+    let (rem, count_miss) = short(rem)?;
+    let (rem, score) = int(rem)?;
+    let (rem, max_combo) = short(rem)?;
+    let (rem, perfect_combo) = boolean(rem)?;
+    let (rem, mods) = map(int, ModSet::from_bits)(rem)?;
+    let (rem, life_graph) = opt_string(rem)?;
+    let (rem, timestamp) = datetime(rem)?;
+
+    let (rem, raw_replay_data) = if standalone {
+        map(length_data(int), Some)(rem)?
+    } else {
+        let (rem, _tag) = tag(&[0xff, 0xff, 0xff, 0xff])(rem)?;
+
+        (rem, None)
+    };
+
+    let replay_data = parse_replay_data(raw_replay_data)?;
+    let (rem, online_score_id) = long(rem)?;
+
+    let replay = Replay {
+        mode,
+        version,
+        beatmap_hash,
+        player_name,
+        replay_hash,
+        count_300,
+        count_100,
+        count_50,
+        count_geki,
+        count_katsu,
+        count_miss,
+        score,
+        max_combo,
+        perfect_combo,
+        mods,
+        life_graph,
+        timestamp,
+        replay_data,
+        raw_replay_data: raw_replay_data.map(ToOwned::to_owned),
+        online_score_id,
+    };
+
+    Ok((rem, replay))
+}
+pub fn actions(bytes: &[u8]) -> IResult<&[u8], Vec<Action>> {
+    many0(action)(bytes)
+}
+
+pub fn action(bytes: &[u8]) -> IResult<&[u8], Action> {
+    let (rem, delta) = number(bytes)?;
+    let (rem, _tag) = tag(b"|")(rem)?;
+    let (rem, x) = number(rem)?;
+    let (rem, _tag) = tag(b"|")(rem)?;
+    let (rem, y) = number(rem)?;
+    let (rem, _tag) = tag(b"|")(rem)?;
+    let (rem, z) = number(rem)?;
+    let (rem, _tag) = tag(b",")(rem)?;
+
+    let action = Action {
+        delta: delta as i64,
+        x: x as f32,
+        y: y as f32,
+        z: z as f32,
+    };
+
+    Ok((rem, action))
+}
+pub fn number(bytes: &[u8]) -> IResult<&[u8], f64> {
+    let (rem, sign) = opt(tag(b"-"))(bytes)?;
+    let (rem, whole) = take_while1(|b: u8| b.is_ascii_digit())(rem)?;
+    let (rem, decimal) = opt(number_bytes)(rem)?;
+
+    let mut num = 0.0;
+
+    for byte in whole {
+        num *= 10.0;
+        num += (*byte - b'0') as f64;
+    }
+
+    if let Some(decimal) = decimal {
+        let mut value = 1.0;
+
+        for byte in decimal {
+            value /= 10.0;
+            num += (*byte - b'0') as f64 * value;
+        }
+    }
+
+    if sign.is_some() {
+        num *= -1.0
+    }
+
+    Ok((rem, num))
+}
+
+pub fn number_bytes(bytes: &[u8]) -> IResult<&[u8], &[u8]> {
+    let (rem, _tag) = tag(b".")(bytes)?;
+
+    take_while(|b: u8| b.is_ascii_digit())(rem)
 }
 
 fn build_option<T>(is_none: bool, content: T) -> Option<T> {

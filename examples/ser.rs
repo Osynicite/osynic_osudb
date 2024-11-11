@@ -1,8 +1,8 @@
-use osynic_osudb::entity::osudb::Osudb;
+use osynic_osudb::entity::osu::osudb::OsuDB;
 
 fn main() {
     // Load the listing to memory
-    let mut osudb = Osudb::from_file("osu!.db").unwrap();
+    let mut osudb = OsuDB::from_file("osu!.db").unwrap();
 
     // Print info for the first 10 songs
     for (index, beatmap) in osudb.beatmaps.iter_mut().take(3).enumerate() {

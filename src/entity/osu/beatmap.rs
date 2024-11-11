@@ -1,10 +1,10 @@
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use crate::entity::field::rank::RankedStatus;
-use crate::entity::field::mode::Mode;
-use crate::entity::field::star::StarRatings;
-use crate::entity::field::time::TimingPoint;
-use crate::entity::field::grade::Grade;
+use crate::entity::osu::field::rank::RankedStatus;
+use crate::entity::osu::field::mode::Mode;
+use crate::entity::osu::field::star::StarRatings;
+use crate::entity::osu::field::time::TimingPoint;
+use crate::entity::osu::field::grade::Grade;
 
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
