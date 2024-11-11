@@ -5,11 +5,15 @@ use nom::{
     multi::length_count,
     Err as NomErr, IResult
 };
+use std::path::Path;
 use std::convert::identity;
 use chrono::{DateTime, Duration, TimeZone, Utc};
 
 use crate::{CHANGE_20140609, CHANGE_20191106};
+use crate::error::Result;
 use crate::io::bit::Bit;
+use crate::entity::collectiondb::CollectionDB;
+use crate::entity::collection::Collection;
 use crate::entity::osudb::Osudb;
 use crate::entity::beatmap::Beatmap;
 use crate::entity::field::rank::RankedStatus;
@@ -25,6 +29,49 @@ pub use nom::number::complete::le_u32 as int;
 pub use nom::number::complete::le_u64 as long;
 pub use nom::number::complete::le_u8 as byte;
 
+impl CollectionDB {
+    pub fn from_bytes(bytes: &[u8]) -> Result<CollectionDB> {
+        Ok(collections(bytes).map(|(_rem, collections)| collections)?)
+    }
+    pub fn from_file<P: AsRef<Path>>(path: P) -> Result<CollectionDB> {
+        Self::from_bytes(&std::fs::read(path)?)
+    }
+}
+
+
+
+impl Osudb {
+    pub fn from_bytes(bytes: &[u8]) -> Result<Osudb> {
+        Ok(osudb(bytes).map(|(_rem, osudb)| osudb)?)
+    }
+    pub fn from_file<P: AsRef<Path>>(path: P) -> Result<Osudb> {
+        Self::from_bytes(&std::fs::read(path)?)
+    }
+}
+
+pub fn collections(bytes: &[u8]) -> IResult<&[u8], CollectionDB> {
+    let (rem, version) = int(bytes)?;
+    let (rem, collections) = length_count(map(int, identity), collection)(rem)?;
+
+    let list = CollectionDB {
+        version,
+        collections,
+    };
+
+    Ok((rem, list))
+}
+
+pub fn collection(bytes: &[u8]) -> IResult<&[u8], Collection> {
+    let (rem, name) = opt_string(bytes)?;
+    let (rem, beatmap_hashes) = length_count(map(int, identity), opt_string)(rem)?;
+
+    let collection = Collection {
+        name,
+        beatmap_hashes,
+    };
+
+    Ok((rem, collection))
+}
 
 pub fn osudb(bytes: &[u8]) -> IResult<&[u8], Osudb> {
     let (rem, version) = int(bytes)?;

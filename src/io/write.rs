@@ -1,16 +1,38 @@
-use crate::error::Result;
-use std::io::Write;
+use std::io::{BufWriter, Write};
+use std::path::Path;
 use chrono::{DateTime,Utc};
 
 use crate::{CHANGE_20140609, CHANGE_20191106};
+use crate::error::Result;
 use crate::io::read::*;
 use crate::io::bit::Bit;
+use crate::entity::collectiondb::CollectionDB;
+use crate::entity::collection::Collection;
 use crate::entity::osudb::Osudb;
 use crate::entity::beatmap::Beatmap;
 use crate::entity::field::rank::RankedStatus;
 use crate::entity::field::time::TimingPoint;
 use crate::entity::field::grade::Grade;
 use crate::entity::field::modification::ModSet;
+
+
+impl CollectionDB {
+    pub fn to_writer<W: Write>(&self, mut out: W) -> Result<()> {
+        self.wr(&mut out)
+    }
+    pub fn to_file<P: AsRef<Path>>(&self, path: P) -> Result<()> {
+        self.to_writer(BufWriter::new(std::fs::File::create(path)?))
+    }
+}
+
+impl Osudb {
+    pub fn to_writer<W: Write>(&self, mut out: W) -> Result<()> {
+        self.wr(&mut out)
+    }
+    pub fn save<P: AsRef<Path>>(&self, path: P) -> Result<()> {
+        self.to_writer(BufWriter::new(std::fs::File::create(path)?))
+    }
+}
 
 pub trait Writable {
     type Args;
@@ -92,6 +114,17 @@ writer!(Option<String> [this,out] {
         None => 0x00_u8.wr(out)?,
     }
 });
+
+writer!(CollectionDB [this,out] {
+    this.version.wr(out)?;
+    PrefixedList(&this.collections).wr(out)?;
+});
+
+writer!(Collection [this,out] {
+    this.name.wr(out)?;
+    PrefixedList(&this.beatmap_hashes).wr(out)?;
+});
+
 writer!(Osudb [this, out] {
     this.version.wr(out)?;
     this.folder_count.wr(out)?;
