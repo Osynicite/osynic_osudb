@@ -45,6 +45,6 @@ MIT
 
 
 # Acknowledgements
-本项目的灵感来源于`osu-db`这个crate
+本项目的灵感以及主要实现来源于`osu-db`这个crate，如果要说我做了什么的话，主要就在项目结构按照自己个人偏好进行的调整了
 
 # Reference

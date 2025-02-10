@@ -3,7 +3,7 @@ use nom::{
     combinator::{cond, map, map_opt, map_res, opt},
     error::{Error as NomError, ErrorKind as NomErrorKind},
     multi::{length_count, length_data, many0},
-    Err as NomErr, IResult
+    Err as NomErr, IResult, Input
 };
 use std::path::Path;
 use std::convert::identity;
