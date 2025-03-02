@@ -11,12 +11,11 @@ keywords = ["osynic", "osu", "osudb", "management", "api"]
 categories = ["game-development","games"]
 license = "MIT"
 documentation = "https://docs.rs/osynic_osudb"
-repository = "https://github.com/zoneherobrine/osynic_osudb"
+repository = "https://github.com/osynicite/osynic_osudb"
 
 [dependencies]
-# nom = "8.0.0" Waiting to change to nom 8.0.0, but occurs braeking changes
-nom = "7.1.3"
-chrono = { version = "0.4.39", features = ["serde"] }
+nom = "8.0.0" 
+chrono = { version = "0.4.40", features = ["serde"] }
 serde = { version = "1.0.218", features = ["derive"] }
 xz2 = { version = "0.1.7", optional = true }
 

@@ -3,7 +3,7 @@ use nom::{
     combinator::{cond, map, map_opt, map_res, opt},
     error::{Error as NomError, ErrorKind as NomErrorKind},
     multi::{length_count, length_data, many0},
-    Err as NomErr, IResult
+    Err as NomErr, IResult,Parser
 };
 use std::path::Path;
 use std::convert::identity;
@@ -106,7 +106,7 @@ pub fn beatmap_scores(bytes: &[u8]) -> Result<(&[u8], Scores)> {
 
 pub fn collections(bytes: &[u8]) -> IResult<&[u8], CollectionDB> {
     let (rem, version) = int(bytes)?;
-    let (rem, collections) = length_count(map(int, identity), collection)(rem)?;
+    let (rem, collections) = length_count(map(int, identity), collection).parse(rem)?;
 
     let list = CollectionDB {
         version,
@@ -118,7 +118,7 @@ pub fn collections(bytes: &[u8]) -> IResult<&[u8], CollectionDB> {
 
 pub fn collection(bytes: &[u8]) -> IResult<&[u8], Collection> {
     let (rem, name) = opt_string(bytes)?;
-    let (rem, beatmap_hashes) = length_count(map(int, identity), opt_string)(rem)?;
+    let (rem, beatmap_hashes) = length_count(map(int, identity), opt_string).parse(rem)?;
 
     let collection = Collection {
         name,
@@ -134,7 +134,7 @@ pub fn osudb(bytes: &[u8]) -> IResult<&[u8], OsuDB> {
     let (rem, account_unlocked) = boolean(rem)?;
     let (rem, unlock_date) = datetime(rem)?;
     let (rem, player_name) = opt_string(rem)?;
-    let (rem, beatmaps) = length_count(map(int, identity), |bytes| beatmap(bytes, version))(rem)?;
+    let (rem, beatmaps) = length_count(map(int, identity), |bytes| beatmap(bytes, version)).parse(rem)?;
     let (rem, user_permissions) = int(rem)?;
 
     let osudb = OsuDB {
@@ -150,7 +150,7 @@ pub fn osudb(bytes: &[u8]) -> IResult<&[u8], OsuDB> {
 }
 
 pub fn beatmap(bytes: &[u8], version: u32) -> IResult<&[u8], Beatmap> {
-    let (rem, _beatmap_size) = cond(version < CHANGE_20191106, int)(bytes)?;
+    let (rem, _beatmap_size) = cond(version < CHANGE_20191106, int).parse(bytes)?;
     let (rem, artist_ascii) = opt_string(rem)?;
     let (rem, artist_unicode) = opt_string(rem)?;
     let (rem, title_ascii) = opt_string(rem)?;
@@ -177,7 +177,7 @@ pub fn beatmap(bytes: &[u8], version: u32) -> IResult<&[u8], Beatmap> {
     let (rem, drain_time) = int(rem)?;
     let (rem, total_time) = int(rem)?;
     let (rem, preview_time) = int(rem)?;
-    let (rem, timing_points) = length_count(map(int, identity), timing_point)(rem)?;
+    let (rem, timing_points) = length_count(map(int, identity), timing_point).parse(rem)?;
     let (rem, beatmap_id) = int(rem)?;
     let (rem, beatmapset_id) = int(rem)?;
     let (rem, thread_id) = int(rem)?;
@@ -187,7 +187,7 @@ pub fn beatmap(bytes: &[u8], version: u32) -> IResult<&[u8], Beatmap> {
     let (rem, mania_grade) = grade(rem)?;
     let (rem, local_beatmap_offset) = short(rem)?;
     let (rem, stack_leniency) = single(rem)?;
-    let (rem, mode) = map_opt(byte, Mode::from_raw)(rem)?;
+    let (rem, mode) = map_opt(byte, Mode::from_raw).parse(rem)?;
     let (rem, song_source) = opt_string(rem)?;
     let (rem, tags) = opt_string(rem)?;
     let (rem, online_offset) = short(rem)?;
@@ -202,7 +202,7 @@ pub fn beatmap(bytes: &[u8], version: u32) -> IResult<&[u8], Beatmap> {
     let (rem, disable_storyboard) = boolean(rem)?;
     let (rem, disable_video) = boolean(rem)?;
     let (rem, visual_override) = boolean(rem)?;
-    let (rem, mysterious_short) = cond(version < CHANGE_20140609, short)(rem)?;
+    let (rem, mysterious_short) = cond(version < CHANGE_20140609, short).parse(rem)?;
     let (rem, mysterious_last_modified) = int(rem)?;
     let (rem, mania_scroll_speed) = byte(rem)?;
 
@@ -275,7 +275,7 @@ pub fn windows_ticks_to_datetime(ticks: u64) -> DateTime<Utc> {
 }
 
 pub fn datetime(bytes: &[u8]) -> IResult<&[u8], DateTime<Utc>> {
-    map(long, windows_ticks_to_datetime)(bytes)
+    map(long, windows_ticks_to_datetime).parse(bytes)
 }
 
 pub fn datetime_to_windows_ticks(datetime: &DateTime<Utc>) -> u64 {
@@ -310,7 +310,7 @@ pub fn opt_string(bytes: &[u8]) -> IResult<&[u8], Option<String>> {
         0x00 => Ok((rem, None)),
         0x0b => {
             let (rem, len) = uleb(rem)?;
-            let (rem, string) = map_res(take(len), std::str::from_utf8)(rem)?;
+            let (rem, string) = map_res(take(len), std::str::from_utf8).parse(rem)?;
 
             Ok((rem, Some(string.to_owned())))
         }
@@ -319,7 +319,7 @@ pub fn opt_string(bytes: &[u8]) -> IResult<&[u8], Option<String>> {
 }
 
 pub fn boolean(bytes: &[u8]) -> IResult<&[u8], bool> {
-    map(byte, |byte: u8| byte != 0)(bytes)
+    map(byte, |byte: u8| byte != 0).parse(bytes)
 }
 
 pub fn timing_point(bytes: &[u8]) -> IResult<&[u8], TimingPoint> {
@@ -338,16 +338,16 @@ pub fn timing_point(bytes: &[u8]) -> IResult<&[u8], TimingPoint> {
 
 pub fn star_ratings(bytes: &[u8], version: u32) -> IResult<&[u8], Vec<(ModSet, f64)>> {
     if version >= CHANGE_20140609 {
-        length_count(map(int, identity), star_rating)(bytes)
+        length_count(map(int, identity), star_rating).parse(bytes)
     } else {
         Ok((bytes, Vec::new()))
     }
 }
 
 pub fn star_rating(bytes: &[u8]) -> IResult<&[u8], (ModSet, f64)> {
-    let (rem, _tag) = tag(&[0x08])(bytes)?;
-    let (rem, mods) = map(int, ModSet::from_bits)(rem)?;
-    let (rem, _tag) = tag(&[0x0d])(rem)?;
+    let (rem, _tag) = tag(&[0x08][..])(bytes)?;
+    let (rem, mods) = map(int, ModSet::from_bits).parse(rem)?;
+    let (rem, _tag) = tag(&[0x0d][..])(rem)?;
     let (rem, stars) = double(rem)?;
 
     Ok((rem, (mods, stars)))
@@ -362,11 +362,11 @@ pub fn difficulty_value(bytes: &[u8], version: u32) -> IResult<&[u8], f32> {
 }
 
 pub fn ranked_status(bytes: &[u8]) -> IResult<&[u8], RankedStatus> {
-    map_opt(byte, RankedStatus::from_raw)(bytes)
+    map_opt(byte, RankedStatus::from_raw).parse(bytes)
 }
 
 pub fn grade(bytes: &[u8]) -> IResult<&[u8], Grade> {
-    map_opt(byte, Grade::from_raw)(bytes)
+    map_opt(byte, Grade::from_raw).parse(bytes)
 }
 
 fn parse_replay_data(raw: Option<&[u8]>) -> Result<Option<Vec<Action>>> {
@@ -390,7 +390,7 @@ fn parse_replay_data(raw: Option<&[u8]>) -> Result<Option<Vec<Action>>> {
 
 
 pub(crate) fn replay(bytes: &[u8], standalone: bool) -> Result<(&[u8], Replay)> {
-    let (rem, mode) = map_opt(byte, Mode::from_raw)(bytes)?;
+    let (rem, mode) = map_opt(byte, Mode::from_raw).parse(bytes)?;
     let (rem, version) = int(rem)?;
     let (rem, beatmap_hash) = opt_string(rem)?;
     let (rem, player_name) = opt_string(rem)?;
@@ -404,14 +404,14 @@ pub(crate) fn replay(bytes: &[u8], standalone: bool) -> Result<(&[u8], Replay)> 
     let (rem, score) = int(rem)?;
     let (rem, max_combo) = short(rem)?;
     let (rem, perfect_combo) = boolean(rem)?;
-    let (rem, mods) = map(int, ModSet::from_bits)(rem)?;
+    let (rem, mods) = map(int, ModSet::from_bits).parse(rem)?;
     let (rem, life_graph) = opt_string(rem)?;
     let (rem, timestamp) = datetime(rem)?;
 
     let (rem, raw_replay_data) = if standalone {
-        map(length_data(int), Some)(rem)?
+        map(length_data(int), Some).parse(rem)?
     } else {
-        let (rem, _tag) = tag(&[0xff, 0xff, 0xff, 0xff])(rem)?;
+        let (rem, _tag) = tag(&[0xff, 0xff, 0xff, 0xff][..])(rem)?;
 
         (rem, None)
     };
@@ -445,18 +445,18 @@ pub(crate) fn replay(bytes: &[u8], standalone: bool) -> Result<(&[u8], Replay)> 
     Ok((rem, replay))
 }
 pub fn actions(bytes: &[u8]) -> IResult<&[u8], Vec<Action>> {
-    many0(action)(bytes)
+    many0(action).parse(bytes)
 }
 
 pub fn action(bytes: &[u8]) -> IResult<&[u8], Action> {
     let (rem, delta) = number(bytes)?;
-    let (rem, _tag) = tag(b"|")(rem)?;
+    let (rem, _tag) = tag(&b"|"[..])(rem)?;
     let (rem, x) = number(rem)?;
-    let (rem, _tag) = tag(b"|")(rem)?;
+    let (rem, _tag) = tag(&b"|"[..])(rem)?;
     let (rem, y) = number(rem)?;
-    let (rem, _tag) = tag(b"|")(rem)?;
+    let (rem, _tag) = tag(&b"|"[..])(rem)?;
     let (rem, z) = number(rem)?;
-    let (rem, _tag) = tag(b",")(rem)?;
+    let (rem, _tag) = tag(&b","[..])(rem)?;
 
     let action = Action {
         delta: delta as i64,
@@ -468,9 +468,9 @@ pub fn action(bytes: &[u8]) -> IResult<&[u8], Action> {
     Ok((rem, action))
 }
 pub fn number(bytes: &[u8]) -> IResult<&[u8], f64> {
-    let (rem, sign) = opt(tag(b"-"))(bytes)?;
+    let (rem, sign) = opt(tag(&b"-"[..])).parse(bytes)?;
     let (rem, whole) = take_while1(|b: u8| b.is_ascii_digit())(rem)?;
-    let (rem, decimal) = opt(number_bytes)(rem)?;
+    let (rem, decimal) = opt(number_bytes).parse(rem)?;
 
     let mut num = 0.0;
 
@@ -496,7 +496,7 @@ pub fn number(bytes: &[u8]) -> IResult<&[u8], f64> {
 }
 
 pub fn number_bytes(bytes: &[u8]) -> IResult<&[u8], &[u8]> {
-    let (rem, _tag) = tag(b".")(bytes)?;
+    let (rem, _tag) = tag(&b"."[..])(bytes)?;
 
     take_while(|b: u8| b.is_ascii_digit())(rem)
 }
