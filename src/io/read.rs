@@ -26,7 +26,7 @@ use crate::entity::osu::field::grade::Grade;
 use crate::entity::osu::field::modification::ModSet;
 use crate::entity::osu::field::mode::Mode;
 
-pub use nom::number::complete::le_f32 as single;
+pub use nom::number::complete::le_f32 as float;
 pub use nom::number::complete::le_f64 as double;
 pub use nom::number::complete::le_u16 as short;
 pub use nom::number::complete::le_u32 as int;
@@ -129,13 +129,22 @@ pub fn collection(bytes: &[u8]) -> IResult<&[u8], Collection> {
 }
 
 pub fn osudb(bytes: &[u8]) -> IResult<&[u8], OsuDB> {
+    println!("osudb start parse");
     let (rem, version) = int(bytes)?;
+    println!("osudb version:{}",version);
     let (rem, folder_count) = int(rem)?;
+    println!("osudb folder_count:{}",folder_count);
     let (rem, account_unlocked) = boolean(rem)?;
+    println!("osudb account_unlocked:{}",account_unlocked);
     let (rem, unlock_date) = datetime(rem)?;
+    println!("osudb unlock_date:{}",unlock_date);
     let (rem, player_name) = opt_string(rem)?;
+    println!("osudb player_name:{}",player_name.as_ref().unwrap());
+    // Pass
     let (rem, beatmaps) = length_count(map(int, identity), |bytes| beatmap(bytes, version)).parse(rem)?;
+    println!("osudb beatmaps len:{}",beatmaps.len());
     let (rem, user_permissions) = int(rem)?;
+    println!("osudb user_permissions:{}",user_permissions);
 
     let osudb = OsuDB {
         version,
@@ -186,7 +195,7 @@ pub fn beatmap(bytes: &[u8], version: u32) -> IResult<&[u8], Beatmap> {
     let (rem, ctb_grade) = grade(rem)?;
     let (rem, mania_grade) = grade(rem)?;
     let (rem, local_beatmap_offset) = short(rem)?;
-    let (rem, stack_leniency) = single(rem)?;
+    let (rem, stack_leniency) = float(rem)?;
     let (rem, mode) = map_opt(byte, Mode::from_raw).parse(rem)?;
     let (rem, song_source) = opt_string(rem)?;
     let (rem, tags) = opt_string(rem)?;
@@ -345,17 +354,41 @@ pub fn star_ratings(bytes: &[u8], version: u32) -> IResult<&[u8], Vec<(ModSet, f
 }
 
 pub fn star_rating(bytes: &[u8]) -> IResult<&[u8], (ModSet, f64)> {
+    println!("star_rating start parse");
     let (rem, _tag) = tag(&[0x08][..])(bytes)?;
+    // let (rem, _tag) = tag(&[0x08,0x00,0x00,0x00,0x00][..])(bytes)?;
+    // 
+    println!("star_rating tag: {:?}",_tag);
     let (rem, mods) = map(int, ModSet::from_bits).parse(rem)?;
-    let (rem, _tag) = tag(&[0x0d][..])(rem)?;
-    let (rem, stars) = double(rem)?;
+    println!("star_rating mods:{}",mods.bits());
+    // Pass
+    
+    println!("Remaining bytes after mods: {:?}", rem.len());
+    println!("Next 10 bytes: {:?}", &rem[..10]);
+    // 打印十六进制
+    println!("Next 10 bytes hex: {:?}", &rem[..10].iter().map(|b| format!("{:02x}", b)).collect::<Vec<_>>());
+    // 0ce41d5d4008400000
+    // you can find this at line 120 of osu!db in hex editor
+    // let (rem, _tag) = tag(&[0x0d][..])(rem)?; 
+    let (rem, _tag) = tag(&[0x0c][..])(rem)?; 
+    // 按理来说就是0c，因为旧版是08xxxxxxxx0dxxxxxxxx，新版是08xxxxxxxx0cxxxxxxxx
+    // panic here 没找到0x0d
+    println!("star_rating tag: {:?}",_tag);
+    // let (rem, stars) = double(rem)?;
+    let (rem, stars) = float(rem)?;
+    println!("star_rating stars:{}",stars);
 
-    Ok((rem, (mods, stars)))
+    Ok((rem, (mods, stars as f64)))
+    // star_rating tag: [8]
+    // star_rating mods:0
+    // Remaining bytes after mods: 6902511
+    // Next 10 bytes: [12, 228, 29, 93, 64, 8, 64, 0, 0, 0]
+    // 读取文件时发生错误: Parse error: Tag
 }
 
 pub fn difficulty_value(bytes: &[u8], version: u32) -> IResult<&[u8], f32> {
     if version >= CHANGE_20140609 {
-        single(bytes)
+        float(bytes)
     } else {
         byte(bytes).map(|(rem, b)| (rem, b as f32))
     }
