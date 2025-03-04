@@ -9,7 +9,7 @@ use std::path::Path;
 use std::convert::identity;
 use chrono::{DateTime, Duration, TimeZone, Utc};
 
-use crate::{CHANGE_20140609, CHANGE_20191106};
+use crate::{CHANGE_20140609, CHANGE_20191106,CHANGE_20250107};
 use crate::error::Result;
 use crate::io::bit::Bit;
 use crate::entity::scores::scoresdb::ScoresDB;
@@ -347,36 +347,46 @@ pub fn timing_point(bytes: &[u8]) -> IResult<&[u8], TimingPoint> {
 
 pub fn star_ratings(bytes: &[u8], version: u32) -> IResult<&[u8], Vec<(ModSet, f64)>> {
     if version >= CHANGE_20140609 {
-        length_count(map(int, identity), star_rating).parse(bytes)
+        length_count(map(int, identity), |bytes| star_rating(bytes, version)).parse(bytes)
     } else {
         Ok((bytes, Vec::new()))
     }
 }
 
-pub fn star_rating(bytes: &[u8]) -> IResult<&[u8], (ModSet, f64)> {
-    println!("star_rating start parse");
+pub fn star_rating(bytes: &[u8], version: u32) -> IResult<&[u8], (ModSet, f64)> {
+    // println!("star_rating start parse");
     let (rem, _tag) = tag(&[0x08][..])(bytes)?;
     // let (rem, _tag) = tag(&[0x08,0x00,0x00,0x00,0x00][..])(bytes)?;
     // 
-    println!("star_rating tag: {:?}",_tag);
+    // println!("star_rating tag: {:?}",_tag);
     let (rem, mods) = map(int, ModSet::from_bits).parse(rem)?;
-    println!("star_rating mods:{}",mods.bits());
+    // println!("star_rating mods:{}",mods.bits());
     // Pass
     
-    println!("Remaining bytes after mods: {:?}", rem.len());
-    println!("Next 10 bytes: {:?}", &rem[..10]);
+    // println!("Remaining bytes after mods: {:?}", rem.len());
+    // println!("Next 10 bytes: {:?}", &rem[..10]);
     // 打印十六进制
-    println!("Next 10 bytes hex: {:?}", &rem[..10].iter().map(|b| format!("{:02x}", b)).collect::<Vec<_>>());
+    // println!("Next 10 bytes hex: {:?}", &rem[..10].iter().map(|b| format!("{:02x}", b)).collect::<Vec<_>>());
     // 0ce41d5d4008400000
     // you can find this at line 120 of osu!db in hex editor
     // let (rem, _tag) = tag(&[0x0d][..])(rem)?; 
     let (rem, _tag) = tag(&[0x0c][..])(rem)?; 
     // 按理来说就是0c，因为旧版是08xxxxxxxx0dxxxxxxxx，新版是08xxxxxxxx0cxxxxxxxx
     // panic here 没找到0x0d
-    println!("star_rating tag: {:?}",_tag);
+    // println!("star_rating tag: {:?}",_tag);
     // let (rem, stars) = double(rem)?;
-    let (rem, stars) = float(rem)?;
-    println!("star_rating stars:{}",stars);
+    // let (rem, stars) = float(rem)?;
+
+    // 判断版本号来决定float还是double,float的话还需要转换一次f64
+    
+    let (rem, stars) = if version <= CHANGE_20250107 {
+        double(rem)?
+    } else {
+        let (rem, stars) = float(rem)?;
+        (rem, stars as f64)
+    };
+
+    // println!("star_rating stars:{}",stars);
 
     Ok((rem, (mods, stars as f64)))
     // star_rating tag: [8]
