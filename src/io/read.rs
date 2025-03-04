@@ -347,16 +347,16 @@ pub fn star_ratings(bytes: &[u8], version: u32) -> IResult<&[u8], Vec<(ModSet, f
 pub fn star_rating(bytes: &[u8], version: u32) -> IResult<&[u8], (ModSet, f64)> {
     let (rem, _tag) = tag(&[0x08][..])(bytes)?;
     let (rem, mods) = map(int, ModSet::from_bits).parse(rem)?;
-    let (rem, _tag) = tag(&[0x0c][..])(rem)?; 
-    
-    let (rem, stars) = if version <= CHANGE_20250107 {
-        double(rem)?
-    } else {
-        let (rem, stars) = float(rem)?;
-        (rem, stars as f64)
-    };
 
-    Ok((rem, (mods, stars as f64)))
+    if version < CHANGE_20250107 {
+        let (rem, _tag) = tag(&[0x0d][..])(rem)?;
+        let (rem, stars) = double(rem)?;
+        Ok((rem, (mods, stars)))
+    } else {
+        let (rem, _tag) = tag(&[0x0c][..])(rem)?;
+        let (rem, stars) = float(rem)?;
+        Ok((rem, (mods, stars as f64)))
+    }
 }
 
 pub fn difficulty_value(bytes: &[u8], version: u32) -> IResult<&[u8], f32> {

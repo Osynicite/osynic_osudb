@@ -2,7 +2,7 @@ use std::io::{BufWriter, Write};
 use std::path::Path;
 use chrono::{DateTime,Utc};
 
-use crate::{CHANGE_20140609, CHANGE_20191106};
+use crate::{CHANGE_20140609, CHANGE_20191106, CHANGE_20250107};
 use crate::error::Result;
 use crate::io::read::*;
 use crate::io::bit::Bit;
@@ -292,14 +292,22 @@ writer!(TimingPoint [this,out] {
 
 writer!(Vec<(ModSet,f64)> [this,out,version: u32] {
     if version>=CHANGE_20140609 {
-        PrefixedList(this).wr(out)?;
+        PrefixedList(this).wr_args(out, version)?;
     }
 });
-writer!((ModSet,f64) [this,out] {
+writer!((ModSet,f64) [this,out,version: u32] {
     0x08_u8.wr(out)?;
     this.0.bits().wr(out)?;
     0x0d_u8.wr(out)?;
     this.1.wr(out)?;
+    
+    if version < CHANGE_20250107 {
+        0x0d_u8.wr(out)?;
+        this.1.wr(out)?;
+    } else {
+        0x0c_u8.wr(out)?;
+        (this.1 as f32).wr(out)?;
+    }
 });
 
 writer!(RankedStatus [this,out] this.raw().wr(out)?);
