@@ -3,8 +3,8 @@ use osynic_osudb::entity::osu::osudb::OsuDB;
 fn main() {
     // Load the listing to memory
     // let mut osudb = OsuDB::from_file("D:\\ProgramUnsigned\\Games\\OSU\\osu!.db").unwrap();
-    // match OsuDB::from_file("archive\\osu!.db") {
-        match OsuDB::from_file("osu!.db") {
+    match OsuDB::from_file("archive\\osu!.db") {
+        // match OsuDB::from_file("osu!.db") {
         Ok(mut osudb) => {
             // 使用 osudb
             
