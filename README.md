@@ -1,3 +1,4 @@
+<!-- markdownlint-disable MD033 MD041 MD045 -->
 <p align="center" dir="auto">
     <img style="height:240px;width:240px" src="https://s2.loli.net/2025/03/10/GSsjOcHqdtBkyu9.png" alt="Logo逃走啦~"/>
 </p>
