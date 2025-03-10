@@ -25,6 +25,10 @@
 
 Osynic's OSU!DB parsing part, based on [osu-db](https://crates.io/crates/osu-db) refactoring, mainly did read-write separation and changed the entity structure, recently upgraded the parsing part to nom8, and solved the change of osu!.db in the 20250107 version
 
+# Related Projects
+
+[osynic_serializer](https://github.com/osynicite/osynic_serializer) is an efficient osu! beatmap serialization tool developed based on [osynic_osudb](https://github.com/osynicite/osynic_osudb), supporting FOLDER and OSUDB serialization algorithms; used with [osynic_downloader](https://github.com/osynicite/osynic_downloader) can achieve fast beatmap serialization and multi-device beatmap synchronization.
+
 # Entity Structure
 
 - entity
@@ -53,9 +57,9 @@ Osynic's OSU!DB parsing part, based on [osu-db](https://crates.io/crates/osu-db)
 
 The main implementation of this project comes from the `osu-db` crate. If you want to say what I did, the main thing is to adjust the project structure according to my personal preferences
 
-[osu-db](https://crates.io/crates/osu-db), osynic_osudb is based on this refactoring, mainly did read-write separation and changed the entity structure, recently upgraded the parsing part to nom8, and solved the change of osu!.db in the 20250107 version
+osynic_osudb is based on [osu-db](https://crates.io/crates/osu-db) refactoring, mainly doing read-write separation and changing the entity structure, and recently upgrading the parsing part to nom8 and solving the change of osu!.db in the 20250107 version
 
-The `osu-db` is based on the Unlicense open source agreement. Nevertheless, we also put its project certificate in the licenses folder.
+The `osu-db` is based on the [Unlicense](http://unlicense.org) license. Nevertheless, we also put its license in the licenses folder.
 
 # 🤝 Contribution Guidelines
 

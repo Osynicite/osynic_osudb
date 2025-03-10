@@ -1,5 +1,5 @@
 <p align="center" dir="auto">
-    <img style="height:240px;width:240px" src="https://s2.loli.net/2025/03/10/GSsjOcHqdtBkyu9.png" alt="logo"/>
+    <img style="height:240px;width:240px" src="https://s2.loli.net/2025/03/10/GSsjOcHqdtBkyu9.png" alt="Logo逃走啦~"/>
 </p>
 
 <h1 align="center" tabindex="-1" class="heading-element" dir="auto">OsynicOsudb</h1>
@@ -24,6 +24,10 @@
 # 简介
 
 Osynic的OSU!DB解析部分，基于[osu-db](https://crates.io/crates/osu-db)重构，主要做了读写分离并改了实体结构，最近把解析部分升级到了nom8，并解决了osu!.db在20250107版本的变更
+
+# 相关项目
+
+[osynic_serializer](https://github.com/osynicite/osynic_serializer) 是一款高效的osu!谱面序列化工具，基于[osynic_osudb](https://github.com/osynicite/osynic_osudb)开发，支持FOLDER、OSUDB两种序列化算法；搭配[osynic_downloader](https://github.com/osynicite/osynic_downloader)使用可实现osu!谱面的快速序列化与多设备谱面同步。
 
 # 实体结构
 
@@ -55,7 +59,7 @@ Osynic的OSU!DB解析部分，基于[osu-db](https://crates.io/crates/osu-db)重
 
 osynic_osudb是基于[osu-db](https://crates.io/crates/osu-db)重构的，主要做了读写分离并改了实体结构，最近把解析部分升级到了nom8，并解决了osu!.db在20250107版本的变更
 
-`osu-db`基于Unlicense开源协议，尽管如此，我们也将其项目证书放在了licenses文件夹下
+`osu-db`基于 [Unlicense](http://unlicense.org) 开源协议，尽管如此，我们也将其项目证书放在了licenses文件夹下
 
 # 🤝 贡献指南
 
