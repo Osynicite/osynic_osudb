@@ -1,39 +1,38 @@
+use chrono::{DateTime, Utc};
 use std::io::{BufWriter, Write};
 use std::path::Path;
-use chrono::{DateTime,Utc};
 
-use crate::{CHANGE_20140609, CHANGE_20191106, CHANGE_20250107};
-use crate::error::Result;
-use crate::io::read::*;
-use crate::io::bit::Bit;
-use crate::entity::scores::scoresdb::ScoresDB;
-use crate::entity::scores::scores::Scores;
-use crate::entity::scores::field::replay::Replay;
-use crate::entity::scores::field::action::Action;
-use crate::entity::collection::collectiondb::CollectionDB;
 use crate::entity::collection::collection::Collection;
-use crate::entity::osu::osudb::OsuDB;
+use crate::entity::collection::collectiondb::CollectionDB;
 use crate::entity::osu::beatmap::Beatmap;
-use crate::entity::osu::field::rank::RankedStatus;
-use crate::entity::osu::field::time::TimingPoint;
 use crate::entity::osu::field::grade::Grade;
 use crate::entity::osu::field::modification::ModSet;
+use crate::entity::osu::field::rank::RankedStatus;
+use crate::entity::osu::field::time::TimingPoint;
+use crate::entity::osu::osudb::OsuDB;
+use crate::entity::scores::field::action::Action;
+use crate::entity::scores::field::replay::Replay;
+use crate::entity::scores::scores::Scores;
+use crate::entity::scores::scoresdb::ScoresDB;
+use crate::error::Result;
+use crate::io::bit::Bit;
+use crate::io::read::*;
+use crate::{CHANGE_20140609, CHANGE_20191106, CHANGE_20250107};
 
 const DEFAULT_COMPRESSION_LEVEL: u32 = 5;
 
 impl Replay {
-    pub fn to_writer<W: Write>(
-        &self,
-        mut out: W,
-        compression_level: Option<u32>,
-    ) -> Result<()> {
+    pub fn to_writer<W: Write>(&self, mut out: W, compression_level: Option<u32>) -> Result<()> {
         self.wr_args(
             &mut out,
             Some(compression_level.unwrap_or(DEFAULT_COMPRESSION_LEVEL)),
         )
     }
     pub fn save<P: AsRef<Path>>(&self, path: P, compression_level: Option<u32>) -> Result<()> {
-        self.to_writer(BufWriter::new(std::fs::File::create(path)?), compression_level)
+        self.to_writer(
+            BufWriter::new(std::fs::File::create(path)?),
+            compression_level,
+        )
     }
 }
 impl ScoresDB {
@@ -44,7 +43,6 @@ impl ScoresDB {
         self.to_writer(BufWriter::new(std::fs::File::create(path)?))
     }
 }
-
 
 impl CollectionDB {
     pub fn to_writer<W: Write>(&self, mut out: W) -> Result<()> {
@@ -300,7 +298,7 @@ writer!((ModSet,f64) [this,out,version: u32] {
     this.0.bits().wr(out)?;
     0x0d_u8.wr(out)?;
     this.1.wr(out)?;
-    
+
     if version < CHANGE_20250107 {
         0x0d_u8.wr(out)?;
         this.1.wr(out)?;

@@ -1,7 +1,6 @@
 use nom::{
+    Err as NomErr, Needed,
     error::{Error as NomError, ErrorKind as NomErrorKind},
-    Needed,
-    Err as NomErr,
 };
 use xz2::stream::Error as LzmaError;
 
@@ -47,7 +46,7 @@ pub enum ErrorKind {
     #[cfg(feature = "compression")]
     Compression(LzmaError),
     IoError(std::io::Error),
-    ParseError(NomErrorKind), 
+    ParseError(NomErrorKind),
     ParseIncomplete(Needed),
 }
 
@@ -72,7 +71,6 @@ impl From<std::io::Error> for Error {
         Error::new(ErrorKind::IoError(e))
     }
 }
-
 
 impl std::fmt::Display for ErrorKind {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {

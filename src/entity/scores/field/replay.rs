@@ -1,12 +1,11 @@
-use serde::{Deserialize, Serialize};
 use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 
-use crate::entity::scores::field::action::Action;
 use crate::entity::osu::field::mode::Mode;
 use crate::entity::osu::field::modification::ModSet;
+use crate::entity::scores::field::action::Action;
 
-
-#[derive(Debug, Clone, PartialEq,Deserialize, Serialize)]
+#[derive(Debug, Clone, PartialEq, Deserialize, Serialize)]
 pub struct Replay {
     pub mode: Mode,
     pub version: u32,

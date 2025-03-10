@@ -53,9 +53,9 @@ Osynic的OSU!DB解析部分，基于[osu-db](https://crates.io/crates/osu-db)重
 
 本项目的主要实现来源于`osu-db`这个crate，如果要说我做了什么的话，主要就在项目结构按照自己个人偏好进行的调整了
 
-[osu-db](https://crates.io/crates/osu-db), osynic_osudb是基于这个重构的，主要做了读写分离并改了实体结构，最近把解析部分升级到了nom8，并解决了osu!.db在20250107版本的变更
+osynic_osudb是基于[osu-db](https://crates.io/crates/osu-db)重构的，主要做了读写分离并改了实体结构，最近把解析部分升级到了nom8，并解决了osu!.db在20250107版本的变更
 
-`osu-db`的基于Unlicense开源协议，尽管如此，我们也将其项目证书放在了licenses文件夹下
+`osu-db`基于Unlicense开源协议，尽管如此，我们也将其项目证书放在了licenses文件夹下
 
 # 🤝 贡献指南
 

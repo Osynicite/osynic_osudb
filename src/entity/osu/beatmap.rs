@@ -1,11 +1,10 @@
-use chrono::{DateTime, Utc};
-use serde::{Deserialize, Serialize};
-use crate::entity::osu::field::rank::RankedStatus;
+use crate::entity::osu::field::grade::Grade;
 use crate::entity::osu::field::mode::Mode;
+use crate::entity::osu::field::rank::RankedStatus;
 use crate::entity::osu::field::star::StarRatings;
 use crate::entity::osu::field::time::TimingPoint;
-use crate::entity::osu::field::grade::Grade;
-
+use chrono::{DateTime, Utc};
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Beatmap {

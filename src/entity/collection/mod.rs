@@ -1,3 +1,2 @@
-
-pub mod collectiondb;
 pub mod collection;
+pub mod collectiondb;

@@ -7,15 +7,14 @@ fn main() {
         // match OsuDB::from_file("osu!.db") {
         Ok(mut osudb) => {
             // 使用 osudb
-            
-    for (index, beatmap) in osudb.beatmaps.iter_mut().take(1).enumerate() {
-        println!("beatmap {}: {:?}",index, beatmap);
-    }
+
+            for (index, beatmap) in osudb.beatmaps.iter_mut().take(1).enumerate() {
+                println!("beatmap {}: {:?}", index, beatmap);
+            }
         }
         Err(e) => {
             println!("读取文件时发生错误: {:?}", e);
             // 读取文件时发生错误: Parse error: Tag
         }
     }
-
 }

@@ -1,6 +1,6 @@
+use crate::entity::osu::beatmap::Beatmap;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
-use crate::entity::osu::beatmap::Beatmap;
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct OsuDB {

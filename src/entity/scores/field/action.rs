@@ -1,5 +1,5 @@
+use crate::entity::scores::field::button::{ManiaButtonSet, StandardButtonSet};
 use serde::{Deserialize, Serialize};
-use crate::entity::scores::field::button::{StandardButtonSet,ManiaButtonSet};
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Action {
@@ -17,4 +17,3 @@ impl Action {
         ManiaButtonSet::from_bits(self.x as u32)
     }
 }
-

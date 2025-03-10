@@ -1,7 +1,7 @@
-use serde::{Deserialize, Serialize};
 use crate::io::bit::Bit;
+use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash,Serialize, Deserialize)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[repr(u32)]
 pub enum StandardButton {
     MousePrimary,

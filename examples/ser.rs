@@ -6,9 +6,12 @@ fn main() {
 
     // Print info for the first 10 songs
     for (index, beatmap) in osudb.beatmaps.iter_mut().take(3).enumerate() {
-        println!("Song {}: {} - {}", index + 1, 
-                 beatmap.artist_unicode.as_ref().unwrap(), 
-                 beatmap.title_unicode.as_ref().unwrap());
+        println!(
+            "Song {}: {} - {}",
+            index + 1,
+            beatmap.artist_unicode.as_ref().unwrap(),
+            beatmap.title_unicode.as_ref().unwrap()
+        );
         println!("Creator: {}", beatmap.creator.as_ref().unwrap());
         println!("Difficulty: {}", beatmap.difficulty_name.as_ref().unwrap());
         println!("Audio: {}", beatmap.audio.as_ref().unwrap());

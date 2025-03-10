@@ -1,8 +1,8 @@
 // Oh this is a true "Mod" module ~ but not rusty qwq
-use serde::{Deserialize, Serialize};
 use crate::io::bit::Bit;
+use serde::{Deserialize, Serialize};
 
-#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash,Serialize, Deserialize)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[repr(u8)]
 pub enum Mod {
     NoFail,
@@ -76,7 +76,7 @@ impl Mod {
     }
 }
 
-#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash,Serialize, Deserialize)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct ModSet(pub u32);
 impl ModSet {
     pub fn bits(&self) -> u32 {

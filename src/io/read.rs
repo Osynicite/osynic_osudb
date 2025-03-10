@@ -1,37 +1,37 @@
+use chrono::{DateTime, Duration, TimeZone, Utc};
 use nom::{
+    Err as NomErr, IResult, Parser,
     bytes::complete::{tag, take, take_while, take_while1},
     combinator::{cond, map, map_opt, map_res, opt},
     error::{Error as NomError, ErrorKind as NomErrorKind},
     multi::{length_count, length_data, many0},
-    Err as NomErr, IResult,Parser
 };
-use std::path::Path;
 use std::convert::identity;
-use chrono::{DateTime, Duration, TimeZone, Utc};
+use std::path::Path;
 
-use crate::{CHANGE_20140609, CHANGE_20191106,CHANGE_20250107};
-use crate::error::Result;
-use crate::io::bit::Bit;
-use crate::entity::scores::scoresdb::ScoresDB;
-use crate::entity::scores::scores::Scores;
-use crate::entity::scores::field::replay::Replay;
-use crate::entity::scores::field::action::Action;
-use crate::entity::collection::collectiondb::CollectionDB;
 use crate::entity::collection::collection::Collection;
-use crate::entity::osu::osudb::OsuDB;
+use crate::entity::collection::collectiondb::CollectionDB;
 use crate::entity::osu::beatmap::Beatmap;
+use crate::entity::osu::field::grade::Grade;
+use crate::entity::osu::field::mode::Mode;
+use crate::entity::osu::field::modification::ModSet;
 use crate::entity::osu::field::rank::RankedStatus;
 use crate::entity::osu::field::time::TimingPoint;
-use crate::entity::osu::field::grade::Grade;
-use crate::entity::osu::field::modification::ModSet;
-use crate::entity::osu::field::mode::Mode;
+use crate::entity::osu::osudb::OsuDB;
+use crate::entity::scores::field::action::Action;
+use crate::entity::scores::field::replay::Replay;
+use crate::entity::scores::scores::Scores;
+use crate::entity::scores::scoresdb::ScoresDB;
+use crate::error::Result;
+use crate::io::bit::Bit;
+use crate::{CHANGE_20140609, CHANGE_20191106, CHANGE_20250107};
 
 pub use nom::number::complete::le_f32 as float;
 pub use nom::number::complete::le_f64 as double;
+pub use nom::number::complete::le_u8 as byte;
 pub use nom::number::complete::le_u16 as short;
 pub use nom::number::complete::le_u32 as int;
 pub use nom::number::complete::le_u64 as long;
-pub use nom::number::complete::le_u8 as byte;
 
 impl Replay {
     pub fn from_bytes(bytes: &[u8]) -> Result<Replay> {
@@ -60,8 +60,6 @@ impl CollectionDB {
     }
 }
 
-
-
 impl OsuDB {
     pub fn from_bytes(bytes: &[u8]) -> Result<OsuDB> {
         Ok(osudb(bytes).map(|(_rem, osudb)| osudb)?)
@@ -70,7 +68,6 @@ impl OsuDB {
         Self::from_bytes(&std::fs::read(path)?)
     }
 }
-
 
 pub fn scores(bytes: &[u8]) -> Result<(&[u8], ScoresDB)> {
     let (rem, version) = int(bytes)?;
@@ -134,7 +131,8 @@ pub fn osudb(bytes: &[u8]) -> IResult<&[u8], OsuDB> {
     let (rem, account_unlocked) = boolean(rem)?;
     let (rem, unlock_date) = datetime(rem)?;
     let (rem, player_name) = opt_string(rem)?;
-    let (rem, beatmaps) = length_count(map(int, identity), |bytes| beatmap(bytes, version)).parse(rem)?;
+    let (rem, beatmaps) =
+        length_count(map(int, identity), |bytes| beatmap(bytes, version)).parse(rem)?;
     let (rem, user_permissions) = int(rem)?;
 
     let osudb = OsuDB {
@@ -265,10 +263,8 @@ pub fn beatmap(bytes: &[u8], version: u32) -> IResult<&[u8], Beatmap> {
     Ok((rem, beatmap))
 }
 
-
-
 pub fn windows_ticks_to_datetime(ticks: u64) -> DateTime<Utc> {
-    let epoch = Utc.with_ymd_and_hms(1, 1, 1,0, 0, 0).unwrap();
+    let epoch = Utc.with_ymd_and_hms(1, 1, 1, 0, 0, 0).unwrap();
     epoch
         + Duration::microseconds((ticks / 10) as i64)
         + Duration::nanoseconds((ticks % 10 * 100) as i64)
@@ -279,12 +275,11 @@ pub fn datetime(bytes: &[u8]) -> IResult<&[u8], DateTime<Utc>> {
 }
 
 pub fn datetime_to_windows_ticks(datetime: &DateTime<Utc>) -> u64 {
-    let epoch = Utc.with_ymd_and_hms(1, 1, 1,0, 0, 0).unwrap();
+    let epoch = Utc.with_ymd_and_hms(1, 1, 1, 0, 0, 0).unwrap();
     let duration = datetime.signed_duration_since(epoch);
     let ticks_since: i64 = (duration * 10).num_microseconds().unwrap_or(0);
     ticks_since.max(0) as u64
 }
-
 
 pub fn uleb(bytes: &[u8]) -> IResult<&[u8], usize> {
     let (rem, prelude) = take_while(|b: u8| b.bit(7))(bytes)?;
@@ -379,8 +374,8 @@ fn parse_replay_data(raw: Option<&[u8]>) -> Result<Option<Vec<Action>>> {
     #[cfg(feature = "compression")]
     {
         if let Some(raw) = raw {
-            use xz2::{stream::Stream, write::XzDecoder};
             use std::io::Write;
+            use xz2::{stream::Stream, write::XzDecoder};
 
             let mut decoder =
                 XzDecoder::new_stream(Vec::new(), Stream::new_lzma_decoder(u64::MAX)?);
@@ -392,8 +387,6 @@ fn parse_replay_data(raw: Option<&[u8]>) -> Result<Option<Vec<Action>>> {
     }
     Ok(None)
 }
-
-
 
 pub(crate) fn replay(bytes: &[u8], standalone: bool) -> Result<(&[u8], Replay)> {
     let (rem, mode) = map_opt(byte, Mode::from_raw).parse(bytes)?;
@@ -508,9 +501,5 @@ pub fn number_bytes(bytes: &[u8]) -> IResult<&[u8], &[u8]> {
 }
 
 fn build_option<T>(is_none: bool, content: T) -> Option<T> {
-    if is_none {
-        None
-    } else {
-        Some(content)
-    }
+    if is_none { None } else { Some(content) }
 }
