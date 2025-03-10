@@ -31,6 +31,8 @@ Osynic's OSU!DB parsing part, based on [osu-db](https://crates.io/crates/osu-db)
 
 [osynic_serializer](https://github.com/osynicite/osynic_serializer) is an efficient osu! beatmap serialization tool developed based on [osynic_osudb](https://github.com/osynicite/osynic_osudb), supporting FOLDER and OSUDB serialization algorithms; used with [osynic_downloader](https://github.com/osynicite/osynic_downloader) can achieve fast beatmap serialization and multi-device beatmap synchronization.
 
+![osynic_serializer.gif](https://s2.loli.net/2025/03/10/cwsgFnTEa76xiWQ.gif)
+
 # Entity Structure
 
 - entity
@@ -75,6 +77,6 @@ If you want to contribute code, please follow these rules:
 - New features must be accompanied by test cases
 - Run `cargo fmt` and `cargo clippy` before submitting
 
-# 📜 Open Source Agreement
+# 📜 License
 
 This project is open source based on the [MIT License](LICENSE), please respect the original author's copyright.

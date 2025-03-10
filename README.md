@@ -31,6 +31,8 @@ Osynic的OSU!DB解析部分，基于[osu-db](https://crates.io/crates/osu-db)重
 
 [osynic_serializer](https://github.com/osynicite/osynic_serializer) 是一款高效的osu!谱面序列化工具，基于[osynic_osudb](https://github.com/osynicite/osynic_osudb)开发，支持FOLDER、OSUDB两种序列化算法；搭配[osynic_downloader](https://github.com/osynicite/osynic_downloader)使用可实现osu!谱面的快速序列化与多设备谱面同步。
 
+![osynic_serializer.gif](https://s2.loli.net/2025/03/10/cwsgFnTEa76xiWQ.gif)
+
 # 实体结构
 
 - entity
