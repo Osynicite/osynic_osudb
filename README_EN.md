@@ -9,7 +9,7 @@
   <a href="https://www.rust-lang.org/" target="_blank"><img src="https://img.shields.io/badge/Rust-1.85%2B-blue"/></a>
   <a href="https://crates.io/crates/osynic_osudb" target="_blank"><img src="https://img.shields.io/crates/v/osynic_osudb"/></a>
   <a href="https://docs.rs/osynic_osudb" target="_blank"><img src="https://img.shields.io/docsrs/osynic_osudb/0.1.0"/></a>
-  <a href="https://github.com/osynicite/osynic_osudb" target="_blank"><img src="https://img.shields.io/badge/License-MIT%202-green.svg"/></a>
+  <a href="https://github.com/osynicite/osynic_osudb" target="_blank"><img src="https://img.shields.io/badge/License-MIT-green.svg"/></a>
   <a href="https://discord.gg/JWyvc6M5" target="_blank"><img src="https://img.shields.io/badge/chat-discord-7289da.svg"/></a>
   <a href="https://github.com/osynicite" target="_blank"><img src="https://img.shields.io/badge/buy%20me-a%20coffee-orange.svg?style=flat-square"/></a>
 
@@ -23,17 +23,17 @@
 
 [中文版本](README.md) | [English Version](README_EN.md)
 
-# Introduction
+# 📄 Introduction
 
 Osynic's OSU!DB parsing part, based on [osu-db](https://crates.io/crates/osu-db) refactoring, mainly did read-write separation and changed the entity structure, recently upgraded the parsing part to nom8, and solved the change of osu!.db in the 20250107 version
 
-# Related Projects
+# 🌐 Related Projects
 
 [osynic_serializer](https://github.com/osynicite/osynic_serializer) is an efficient osu! beatmap serialization tool developed based on [osynic_osudb](https://github.com/osynicite/osynic_osudb), supporting FOLDER and OSUDB serialization algorithms; used with [osynic_downloader](https://github.com/osynicite/osynic_downloader) can achieve fast beatmap serialization and multi-device beatmap synchronization.
 
 ![osynic_serializer.gif](https://s2.loli.net/2025/03/10/cwsgFnTEa76xiWQ.gif)
 
-# Entity Structure
+# 📦Entity Structure
 
 - entity
   - osu
@@ -57,7 +57,7 @@ Osynic's OSU!DB parsing part, based on [osu-db](https://crates.io/crates/osu-db)
       - button
       - replay
 
-# Acknowledgement
+# ❤️ Acknowledgement
 
 The main implementation of this project comes from the `osu-db` crate. If you want to say what I did, the main thing is to adjust the project structure according to my personal preferences
 

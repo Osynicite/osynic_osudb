@@ -9,7 +9,7 @@
   <a href="https://www.rust-lang.org/" target="_blank"><img src="https://img.shields.io/badge/Rust-1.85%2B-blue"/></a>
   <a href="https://crates.io/crates/osynic_osudb" target="_blank"><img src="https://img.shields.io/crates/v/osynic_osudb"/></a>
   <a href="https://docs.rs/osynic_osudb" target="_blank"><img src="https://img.shields.io/docsrs/osynic_osudb/0.1.0"/></a>
-  <a href="https://github.com/osynicite/osynic_osudb" target="_blank"><img src="https://img.shields.io/badge/License-MIT%202-green.svg"/></a>
+  <a href="https://github.com/osynicite/osynic_osudb" target="_blank"><img src="https://img.shields.io/badge/License-MIT-green.svg"/></a>
   <a href="https://discord.gg/JWyvc6M5" target="_blank"><img src="https://img.shields.io/badge/chat-discord-7289da.svg"/></a>
   <a href="https://github.com/osynicite" target="_blank"><img src="https://img.shields.io/badge/buy%20me-a%20coffee-orange.svg?style=flat-square"/></a>
 
@@ -23,17 +23,17 @@
 
 [中文版本](README.md) | [English Version](README_EN.md)
 
-# 简介
+# 📄 简介
 
 Osynic的OSU!DB解析部分，基于[osu-db](https://crates.io/crates/osu-db)重构，主要做了读写分离并改了实体结构，最近把解析部分升级到了nom8，并解决了osu!.db在20250107版本的变更
 
-# 相关项目
+# 🌐 相关项目
 
 [osynic_serializer](https://github.com/osynicite/osynic_serializer) 是一款高效的osu!谱面序列化工具，基于[osynic_osudb](https://github.com/osynicite/osynic_osudb)开发，支持FOLDER、OSUDB两种序列化算法；搭配[osynic_downloader](https://github.com/osynicite/osynic_downloader)使用可实现osu!谱面的快速序列化与多设备谱面同步。
 
 ![osynic_serializer.gif](https://s2.loli.net/2025/03/10/cwsgFnTEa76xiWQ.gif)
 
-# 实体结构
+# 📦 实体结构
 
 - entity
   - osu
@@ -57,7 +57,7 @@ Osynic的OSU!DB解析部分，基于[osu-db](https://crates.io/crates/osu-db)重
       - button
       - replay
 
-# 鸣谢
+# ❤️ 鸣谢
 
 本项目的主要实现来源于`osu-db`这个crate，如果要说我做了什么的话，主要就在项目结构按照自己个人偏好进行的调整了
 
