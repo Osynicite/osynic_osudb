@@ -153,7 +153,7 @@ checksum = "cde51589ab56b20a6f686b2c68f7a0bd6add753d697abf720d63f8db3ab7b1ad"
 
 [[package]]
 name = "osynic_osudb"
-version = "0.1.0"
+version = "0.1.1"
 dependencies = [
  "chrono",
  "nom",
