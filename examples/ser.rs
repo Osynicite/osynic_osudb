@@ -4,7 +4,7 @@ fn main() {
     // Load the listing to memory
     let mut osudb = OsuDB::from_file("osu!.db").unwrap();
 
-    // Print info for the first 10 songs
+    // Print info for the first 3 songs
     for (index, beatmap) in osudb.beatmaps.iter_mut().take(3).enumerate() {
         println!(
             "Song {}: {} - {}",

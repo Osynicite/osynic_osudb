@@ -57,6 +57,51 @@ Osynic的OSU!DB解析部分，基于[osu-db](https://crates.io/crates/osu-db)重
       - button
       - replay
 
+# 📦 安装
+
+在你的`Cargo.toml`文件中添加以下依赖：
+
+```toml
+[dependencies]
+osynic_osudb = "0.1.0"
+```
+
+# 📖 使用
+
+```rust
+use osynic_osudb::prelude::OsuDB;
+
+fn main() {
+    // 将osu!.db文件解析为OsuDB结构体
+    let mut osudb = OsuDB::from_file("osu!.db").unwrap();
+
+    // 打印前三个谱面的信息
+    for (index, beatmap) in osudb.beatmaps.iter_mut().take(3).enumerate() {
+        println!(
+            "Song {}: {} - {}",
+            index + 1,
+            beatmap.artist_unicode.as_ref().unwrap(),
+            beatmap.title_unicode.as_ref().unwrap()
+        );
+        println!("Creator: {}", beatmap.creator.as_ref().unwrap());
+        println!("Difficulty: {}", beatmap.difficulty_name.as_ref().unwrap());
+        println!("Audio: {}", beatmap.audio.as_ref().unwrap());
+        println!("Hash: {}", beatmap.hash.as_ref().unwrap());
+        println!("File Name: {}", beatmap.file_name.as_ref().unwrap());
+        println!("Status: {:?}", beatmap.status);
+        println!("Hitcircle Count: {}", beatmap.hitcircle_count);
+        println!("Slider Count: {}", beatmap.slider_count);
+        println!("Spinner Count: {}", beatmap.spinner_count);
+        println!("Last Modified: {}", beatmap.last_modified);
+        println!("Approach Rate: {}", beatmap.approach_rate);
+        println!("Circle Size: {}", beatmap.circle_size);
+        println!("HP Drain: {}", beatmap.hp_drain);
+        println!("Overall Difficulty: {}", beatmap.overall_difficulty);
+        println!("---------------------------------");
+    }
+}
+```
+
 # ❤️ 鸣谢
 
 本项目的主要实现来源于`osu-db`这个crate，如果要说我做了什么的话，主要就在项目结构按照自己个人偏好进行的调整了
