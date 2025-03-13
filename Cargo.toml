@@ -1,14 +1,14 @@
 [package]
 name = "osynic_osudb"
-version = "0.1.1"
+version = "0.1.2"
 edition = "2024"
 rust-version = "1.85.0"
 authors = [
     "Hako Chest <zoneherobrine@gmail.com>"
 ]
-description = "The OSU!DB functions of Osynic App"
-keywords = ["osynic", "osu", "osudb", "management", "api"]
-categories = ["game-development","games"]
+description = "osu!db parser for Osynic, refactoring based on osu-db"
+keywords = ["osynic", "osu", "osudb", "parser", "nom"]
+categories = ["game-development","parsing-tools"]
 license = "MIT"
 documentation = "https://docs.rs/osynic_osudb"
 repository = "https://github.com/osynicite/osynic_osudb"

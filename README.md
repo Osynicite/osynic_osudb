@@ -8,7 +8,7 @@
 <p align="center">
   <a href="https://www.rust-lang.org/" target="_blank"><img src="https://img.shields.io/badge/Rust-1.85%2B-blue"/></a>
   <a href="https://crates.io/crates/osynic_osudb" target="_blank"><img src="https://img.shields.io/crates/v/osynic_osudb"/></a>
-  <a href="https://docs.rs/osynic_osudb" target="_blank"><img src="https://img.shields.io/docsrs/osynic_osudb/0.1.1"/></a>
+  <a href="https://docs.rs/osynic_osudb" target="_blank"><img src="https://img.shields.io/docsrs/osynic_osudb/0.1.2"/></a>
   <a href="https://github.com/osynicite/osynic_osudb" target="_blank"><img src="https://img.shields.io/badge/License-MIT-green.svg"/></a>
   <a href="https://discord.gg/JWyvc6M5" target="_blank"><img src="https://img.shields.io/badge/chat-discord-7289da.svg"/></a>
   <a href="https://github.com/osynicite" target="_blank"><img src="https://img.shields.io/badge/buy%20me-a%20coffee-orange.svg?style=flat-square"/></a>
@@ -16,7 +16,7 @@
 </p>
 
 <p align="center">
-    OSU!曲谱同步器Osynic的OSU!DB解析部分
+    Osynic的osu!db解析部分，基于osu-db重构
 </p>
 
 <hr />
@@ -25,7 +25,7 @@
 
 # 📄 简介
 
-Osynic的OSU!DB解析部分，基于[osu-db](https://crates.io/crates/osu-db)重构，主要做了读写分离并改了实体结构，最近把解析部分升级到了nom8，并解决了osu!.db在20250107版本的变更
+Osynic的osu!db解析部分，基于[osu-db](https://crates.io/crates/osu-db)重构，主要做了读写分离并改了实体结构，最近把解析部分升级到了nom8，并解决了osu!.db在20250107版本的变更
 
 # 🌐 相关项目
 
