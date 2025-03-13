@@ -8,7 +8,7 @@ authors = [
 ]
 description = "osu!db parser for Osynic, refactoring based on osu-db"
 keywords = ["osynic", "osu", "osudb", "parser", "nom"]
-categories = ["game-development","parsing-tools"]
+categories = ["game-development","parsing"]
 license = "MIT"
 documentation = "https://docs.rs/osynic_osudb"
 repository = "https://github.com/osynicite/osynic_osudb"
