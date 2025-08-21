@@ -111,7 +111,7 @@ osynic_osudb = "0.1.3"
 
 ### Parsing osu!.db File
 
-```rust
+```rust,no_run
 use osynic_osudb::prelude::OsuDB;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -157,10 +157,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 ### Advanced Usage
 
-```rust
+```rust,no_run
 use osynic_osudb::prelude::*;
 
-fn advanced_usage() -> Result<(), Box<dyn std::error::Error>> {
+fn main() -> Result<(), Box<dyn std::error::Error>> {
     let osudb = OsuDB::from_file("osu!.db")?;
     
     // Filter beatmaps by specific conditions

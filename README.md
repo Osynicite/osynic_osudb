@@ -111,7 +111,7 @@ osynic_osudb = "0.1.3"
 
 ### 解析 osu!.db 文件
 
-```rust
+```rust,no_run
 use osynic_osudb::prelude::OsuDB;
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -157,10 +157,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
 ### 进阶用法
 
-```rust
+```rust,no_run
 use osynic_osudb::prelude::*;
 
-fn advanced_usage() -> Result<(), Box<dyn std::error::Error>> {
+fn main() -> Result<(), Box<dyn std::error::Error>> {
     let osudb = OsuDB::from_file("osu!.db")?;
     
     // 筛选特定条件的谱面
@@ -193,7 +193,6 @@ fn advanced_usage() -> Result<(), Box<dyn std::error::Error>> {
     Ok(())
 }
 ```
-```
 
 # ❤️ 致谢与声明
 
@@ -221,6 +220,7 @@ fn advanced_usage() -> Result<(), Box<dyn std::error::Error>> {
 ## 🚀 如何贡献
 
 ### 报告问题
+
 - 🐛 发现 Bug？请提交详细的 [Issue](https://github.com/osynicite/osynic_osudb/issues)
 - 💡 有新想法？欢迎在 [Discussions](https://github.com/osynicite/osynic_osudb/discussions) 中分享
 
