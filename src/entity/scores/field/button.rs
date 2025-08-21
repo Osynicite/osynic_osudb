@@ -27,11 +27,11 @@ impl StandardButtonSet {
         StandardButtonSet::from_bits(0)
     }
     pub fn is_down(&self, button: StandardButton) -> bool {
-        self.bits().bit(button.raw() as u32)
+        self.bits().bit(button.raw())
     }
     pub fn set_down(&self, button: StandardButton, is_down: bool) -> StandardButtonSet {
         let mut bits = self.bits();
-        bits.set_bit(button.raw() as u32, is_down);
+        bits.set_bit(button.raw(), is_down);
         StandardButtonSet::from_bits(bits)
     }
     pub fn press(&self, button: StandardButton) -> StandardButtonSet {

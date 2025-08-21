@@ -1,0 +1,148 @@
+name: CI
+
+on:
+  push:
+    branches: [ master, main ]
+    paths-ignore:
+      - '**.md'
+      - 'LICENSE'
+      - '.gitignore'
+  pull_request:
+    branches: [ master, main ]
+    paths-ignore:
+      - '**.md'
+      - 'LICENSE'
+      - '.gitignore'
+
+env:
+  CARGO_TERM_COLOR: always
+  RUST_BACKTRACE: 1
+
+jobs:
+  # 快速检查作业 - 合并多个基础检查
+  quick-checks:
+    name: Quick Checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+
+      - name: Install stable toolchain
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          components: rustfmt, clippy
+
+      - name: Setup Rust cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: "shared-cache"
+
+      - name: Check compilation
+        run: cargo check --all-features
+
+      - name: Check formatting
+        run: cargo fmt --all -- --check
+
+      - name: Run clippy
+        run: cargo clippy --all-features -- -D warnings
+
+      - name: Run tests (Ubuntu only)
+        run: cargo test --all-features
+
+  # 跨平台测试 - 只在特定条件下运行
+  cross-platform-test:
+    name: Cross Platform Test
+    # 只在推送到主分支或PR包含"test-all"标签时运行
+    if: github.event_name == 'push' || contains(github.event.pull_request.labels.*.name, 'test-all')
+    needs: quick-checks
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+
+      - name: Install stable toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Setup Rust cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: "cross-platform-${{ matrix.os }}"
+
+      - name: Run tests
+        run: cargo test --all-features
+
+  # Beta Rust 测试 - 只在发布时运行
+  beta-rust-test:
+    name: Beta Rust Test
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    needs: quick-checks
+    runs-on: ubuntu-latest
+    continue-on-error: true  # 允许beta测试失败
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+
+      - name: Install beta toolchain
+        uses: dtolnay/rust-toolchain@beta
+
+      - name: Setup Rust cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: "beta-rust"
+
+      - name: Run tests with beta Rust
+        run: cargo test --all-features
+
+  # 文档生成 - 只在推送到主分支时运行
+  docs:
+    name: Documentation
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master'
+    needs: quick-checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+
+      - name: Install stable toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Setup Rust cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: "shared-cache"
+
+      - name: Generate documentation
+        run: cargo doc --no-deps --all-features
+
+  # 代码覆盖率 - 只在推送到主分支且包含"coverage"标签时运行
+  coverage:
+    name: Code Coverage
+    if: github.event_name == 'push' && github.ref == 'refs/heads/master' && contains(github.event.head_commit.message, '[coverage]')
+    needs: quick-checks
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+
+      - name: Install stable toolchain
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Setup Rust cache
+        uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: "shared-cache"
+
+      - name: Install cargo-tarpaulin
+        uses: taiki-e/install-action@cargo-tarpaulin
+
+      - name: Generate code coverage
+        run: cargo tarpaulin --verbose --all-features --workspace --timeout 120 --out xml
+
+      - name: Upload to codecov.io
+        uses: codecov/codecov-action@v3
+        with:
+          fail_ci_if_error: false

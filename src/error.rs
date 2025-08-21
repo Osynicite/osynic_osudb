@@ -76,10 +76,10 @@ impl std::fmt::Display for ErrorKind {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
             #[cfg(feature = "compression")]
-            ErrorKind::Compression(e) => write!(f, "Compression error: {}", e),
-            ErrorKind::IoError(e) => write!(f, "IO error: {}", e),
-            ErrorKind::ParseError(e) => write!(f, "Parse error: {:?}", e),
-            ErrorKind::ParseIncomplete(needed) => write!(f, "Parse incomplete: {:?}", needed),
+            ErrorKind::Compression(e) => write!(f, "Compression error: {e}"),
+            ErrorKind::IoError(e) => write!(f, "IO error: {e}"),
+            ErrorKind::ParseError(e) => write!(f, "Parse error: {e:?}"),
+            ErrorKind::ParseIncomplete(needed) => write!(f, "Parse incomplete: {needed:?}"),
         }
     }
 }
@@ -88,10 +88,10 @@ impl std::fmt::Debug for ErrorKind {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
             #[cfg(feature = "compression")]
-            ErrorKind::Compression(e) => write!(f, "Compression error: {}", e),
-            ErrorKind::IoError(e) => write!(f, "IO error: {}", e),
-            ErrorKind::ParseError(e) => write!(f, "Parse error: {:?}", e),
-            ErrorKind::ParseIncomplete(needed) => write!(f, "Parse incomplete: {:?}", needed),
+            ErrorKind::Compression(e) => write!(f, "Compression error: {e}"),
+            ErrorKind::IoError(e) => write!(f, "IO error: {e}"),
+            ErrorKind::ParseError(e) => write!(f, "Parse error: {e:?}"),
+            ErrorKind::ParseIncomplete(needed) => write!(f, "Parse incomplete: {needed:?}"),
         }
     }
 }
