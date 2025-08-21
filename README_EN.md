@@ -59,14 +59,14 @@ An efficient osu! beatmap serialization tool with the following features:
 - ⚡ **Fast Serialization**: Optimized algorithms ensure high performance when processing large beatmap collections
 - 🔄 **Multi-Device Sync**: Works with osynic_downloader to achieve cross-device beatmap synchronization
 
+![osynic_serializer Demo](https://s2.loli.net/2025/03/10/cwsgFnTEa76xiWQ.gif)
+
 ### [osynic_downloader](https://github.com/osynicite/osynic_downloader)
 
 Smart beatmap downloader that supports:
 
 - 📦 **Batch Downloads**: Efficient concurrent download mechanism
 - 🔗 **Ecosystem Integration**: Seamless integration with the entire osynic toolchain
-
-![osynic_serializer Demo](https://s2.loli.net/2025/03/10/cwsgFnTEa76xiWQ.gif)
 
 # 📦 Project Architecture
 
@@ -96,7 +96,7 @@ This project adopts a modular design with the following entity structure:
         └── replay.rs         # Replay data
 ```
 
-# � Quick Start
+# 🚀 Quick Start
 
 ## Installation
 

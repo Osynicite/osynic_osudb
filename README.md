@@ -59,14 +59,14 @@
 - ⚡ **快速序列化**：优化的算法确保处理大量谱面时的高性能
 - 🔄 **多设备同步**：与 osynic_downloader 配合实现跨设备谱面同步
 
+![osynic_serializer演示](https://s2.loli.net/2025/03/10/cwsgFnTEa76xiWQ.gif)
+
 ### [osynic_downloader](https://github.com/osynicite/osynic_downloader)
 
 智能谱面下载器，支持：
 
 - 📦 **批量下载**：高效的并发下载机制
 - 🔗 **生态集成**：与整个 osynic 工具链无缝集成
-
-![osynic_serializer演示](https://s2.loli.net/2025/03/10/cwsgFnTEa76xiWQ.gif)
 
 # 📦 项目架构
 
@@ -96,7 +96,7 @@
         └── replay.rs         # 回放数据
 ```
 
-# � 快速开始
+# 🚀 快速开始
 
 ## 安装
 
