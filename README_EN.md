@@ -35,6 +35,7 @@
 - 🆕 **Latest Compatibility**: Fully supports osu! 2025.0107 version database format changes
 - 🏗️ **Modern Architecture**: Redesigned entity structure following Rust best practices
 - 📝 **Type Safety**: Strong type system ensures data integrity and runtime safety
+- 🌐 **WASM Support**: Complete WebAssembly bindings for browser and Node.js environments
 
 ## 🎯 Use Cases
 
@@ -42,6 +43,8 @@
 - Game data analysis and statistics
 - Batch beatmap information processing
 - osu! ecosystem toolchain integration
+- Web-based osu! tool development (via WASM)
+- Node.js server-side data processing
 
 ## 📚 Official Documentation
 
@@ -100,6 +103,8 @@ This project adopts a modular design with the following entity structure:
 
 ## Installation
 
+### Rust Projects
+
 Add the following dependency to your `Cargo.toml`:
 
 ```toml
@@ -107,9 +112,19 @@ Add the following dependency to your `Cargo.toml`:
 osynic_osudb = "0.1.3"
 ```
 
+### Web/Node.js Projects
+
+Install the WASM package via npm:
+
+```bash
+npm install @osynic/osynic-osudb
+```
+
 ## Basic Usage
 
-### Parsing osu!.db File
+### Rust Environment
+
+#### Parsing osu!.db File
 
 ```rust,no_run
 use osynic_osudb::prelude::OsuDB;
@@ -183,6 +198,259 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     
     // Display top 5 artists by beatmap count
     let mut sorted_artists: Vec<_> = artist_count.iter().collect();
+    sorted_artists.sort_by(|a, b| b.1.cmp(a.1));
+    
+    println!("\n🎨 Top Artists by Beatmap Count:");
+    for (artist, count) in sorted_artists.iter().take(5) {
+        println!("   {} - {} beatmaps", artist, count);
+    }
+    
+    Ok(())
+}
+```
+
+## Web/Node.js Environment
+
+### Browser Usage
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>osu!db Parser</title>
+</head>
+<body>
+    <input type="file" id="file-input" accept=".db" />
+    <div id="output"></div>
+
+    <script type="module">
+        import init, { WasmOsuDB, WasmUtils } from '@osynic/osynic-osudb';
+
+        async function run() {
+            // Initialize WASM module
+            await init();
+
+            const fileInput = document.getElementById('file-input');
+            const output = document.getElementById('output');
+
+            fileInput.addEventListener('change', async (event) => {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                try {
+                    // Read file as array buffer
+                    const arrayBuffer = await file.arrayBuffer();
+                    const bytes = new Uint8Array(arrayBuffer);
+
+                    // Parse osu!.db file
+                    const osuDB = new WasmOsuDB(bytes);
+
+                    // Get basic info
+                    output.innerHTML = `
+                        <h3>osu!.db Info</h3>
+                        <p>Version: ${osuDB.version}</p>
+                        <p>Player Name: ${osuDB.playerName || 'Unknown'}</p>
+                        <p>Beatmap Count: ${osuDB.beatmapCount()}</p>
+                        <p>Folder Count: ${osuDB.folderCount}</p>
+                    `;
+
+                    // Get full data as JavaScript object
+                    const data = osuDB.toObject();
+                    console.log('Full osu!.db data:', data);
+
+                    // Get beatmaps
+                    const beatmaps = osuDB.getBeatmaps();
+                    console.log('Beatmaps:', beatmaps);
+
+                } catch (error) {
+                    output.innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+                    console.error('File parsing error:', error);
+                }
+            });
+
+            // Show library info
+            const constants = WasmUtils.getVersionConstants();
+            console.log('Library version info:', constants);
+            console.log('Has compression support:', WasmUtils.hasCompression());
+        }
+
+        run();
+    </script>
+</body>
+</html>
+```
+
+### Node.js Usage
+
+```javascript
+import { readFileSync } from 'fs';
+import init, { WasmOsuDB, WasmScoresDB, WasmCollectionDB, WasmReplay } from '@osynic/osynic-osudb';
+
+async function parseOsuDB() {
+    // Initialize WASM module
+    await init();
+
+    try {
+        // Parse osu!.db
+        const osuDbBytes = readFileSync('path/to/osu!.db');
+        const osuDB = new WasmOsuDB(osuDbBytes);
+        
+        console.log(`Player: ${osuDB.playerName}`);
+        console.log(`Beatmaps: ${osuDB.beatmapCount()}`);
+        
+        const data = osuDB.toObject();
+        console.log('Full data:', JSON.stringify(data, null, 2));
+
+        // Parse scores.db
+        const scoresDbBytes = readFileSync('path/to/scores.db');
+        const scoresDB = new WasmScoresDB(scoresDbBytes);
+        console.log(`Scores DB version: ${scoresDB.version}`);
+
+        // Parse collection.db
+        const collectionDbBytes = readFileSync('path/to/collection.db');
+        const collectionDB = new WasmCollectionDB(collectionDbBytes);
+        console.log(`Collections: ${collectionDB.collectionCount()}`);
+
+        // Parse replay file
+        const replayBytes = readFileSync('path/to/replay.osr');
+        const replay = new WasmReplay(replayBytes);
+        console.log(`Replay player: ${replay.playerName}`);
+        console.log(`Score: ${replay.score}`);
+
+    } catch (error) {
+        console.error('Error:', error.message);
+    }
+}
+
+parseOsuDB();
+```
+
+### TypeScript Support
+
+```typescript
+import { readFileSync } from 'fs';
+import init, { 
+    WasmOsuDB, 
+    WasmScoresDB, 
+    WasmCollectionDB, 
+    WasmReplay,
+    OsuDBData,
+    BeatmapData
+} from '@osynic/osynic-osudb';
+
+async function parseWithTypes(): Promise<void> {
+    await init();
+
+    const osuDbBytes = readFileSync('path/to/osu!.db');
+    const osuDB = new WasmOsuDB(osuDbBytes);
+    
+    // Get typed data
+    const data: OsuDBData = osuDB.toObject();
+    const beatmaps: BeatmapData[] = osuDB.getBeatmaps();
+    
+    // Process beatmaps with full type safety
+    beatmaps.forEach((beatmap: BeatmapData) => {
+        console.log(`${beatmap.artist_unicode || beatmap.artist_ascii} - ${beatmap.title_unicode || beatmap.title_ascii}`);
+        console.log(`Difficulty: ${beatmap.difficulty_name}`);
+        console.log(`Creator: ${beatmap.creator}`);
+        console.log(`AR: ${beatmap.approach_rate}, CS: ${beatmap.circle_size}`);
+        console.log('---');
+    });
+}
+```
+
+### React Example
+
+```tsx
+import React, { useState, useCallback } from 'react';
+import init, { WasmOsuDB } from '@osynic/osynic-osudb';
+
+const OsuDBViewer: React.FC = () => {
+    const [osuDB, setOsuDB] = useState<WasmOsuDB | null>(null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    const handleFileChange = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+
+        setLoading(true);
+        setError(null);
+
+        try {
+            // Initialize WASM module if not already done
+            await init();
+
+            const arrayBuffer = await file.arrayBuffer();
+            const bytes = new Uint8Array(arrayBuffer);
+            
+            const db = new WasmOsuDB(bytes);
+            setOsuDB(db);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : 'Unknown error');
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
+    return (
+        <div>
+            <input
+                type="file"
+                accept=".db"
+                onChange={handleFileChange}
+                disabled={loading}
+            />
+            
+            {loading && <p>Loading...</p>}
+            {error && <p style={{ color: 'red' }}>Error: {error}</p>}
+            
+            {osuDB && (
+                <div>
+                    <h3>osu!.db Information</h3>
+                    <p>Player: {osuDB.playerName || 'Unknown'}</p>
+                    <p>Version: {osuDB.version}</p>
+                    <p>Beatmaps: {osuDB.beatmapCount()}</p>
+                    
+                    <h4>Beatmaps</h4>
+                    <ul>
+                        {osuDB.getBeatmaps().slice(0, 10).map((beatmap, index) => (
+                            <li key={index}>
+                                {beatmap.artist_unicode || beatmap.artist_ascii} - {beatmap.title_unicode || beatmap.title_ascii}
+                                [{beatmap.difficulty_name}]
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            )}
+        </div>
+    );
+};
+
+export default OsuDBViewer;
+```
+
+## Performance Tips
+
+1. **Initialize once**: Call `init()` only once in your application
+2. **Reuse instances**: WASM objects can be reused for multiple operations
+3. **Memory management**: WASM objects are automatically garbage collected
+4. **Large files**: For very large files, consider processing in chunks
+
+## Error Handling
+
+The WASM bindings provide detailed error messages for parsing failures:
+
+```javascript
+try {
+    const osuDB = new WasmOsuDB(invalidBytes);
+} catch (error) {
+    if (error.message.includes('Failed to parse OsuDB')) {
+        console.log('Invalid osu!.db file format');
+    }
+}
+```
     sorted_artists.sort_by(|a, b| b.1.cmp(a.1));
     
     println!("\n🎨 Top Artists by Beatmap Count:");

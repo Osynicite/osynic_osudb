@@ -35,6 +35,7 @@
 - 🆕 **最新兼容**：完全支持 osu! 2025.0107 版本的数据库格式变更
 - 🏗️ **现代架构**：重新设计的实体结构，更符合 Rust 最佳实践
 - 📝 **类型安全**：强类型系统确保数据完整性和运行时安全
+- 🌐 **WASM 支持**：提供完整的 WebAssembly 绑定，支持浏览器和 Node.js 环境
 
 ## 🎯 适用场景
 
@@ -42,6 +43,8 @@
 - 游戏数据分析和统计
 - 谱面信息批量处理
 - osu! 生态系统工具链集成
+- 网页端 osu! 工具开发（通过 WASM）
+- Node.js 服务器端数据处理
 
 ## 📚 官方文档
 
@@ -100,6 +103,8 @@
 
 ## 安装
 
+### Rust 项目
+
 在您的 `Cargo.toml` 文件中添加以下依赖：
 
 ```toml
@@ -107,9 +112,19 @@
 osynic_osudb = "0.1.3"
 ```
 
+### Web/Node.js 项目
+
+通过 npm 安装 WASM 包：
+
+```bash
+npm install @osynic/osynic-osudb
+```
+
 ## 基础用法
 
-### 解析 osu!.db 文件
+### Rust 环境
+
+#### 解析 osu!.db 文件
 
 ```rust,no_run
 use osynic_osudb::prelude::OsuDB;
@@ -191,6 +206,249 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
     
     Ok(())
+}
+```
+
+## Web/Node.js 环境
+
+### 浏览器中使用
+
+```html
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>osu!db 解析器</title>
+</head>
+<body>
+    <input type="file" id="file-input" accept=".db" />
+    <div id="output"></div>
+
+    <script type="module">
+        import init, { WasmOsuDB, WasmUtils } from '@osynic/osynic-osudb';
+
+        async function run() {
+            // 初始化 WASM 模块
+            await init();
+
+            const fileInput = document.getElementById('file-input');
+            const output = document.getElementById('output');
+
+            fileInput.addEventListener('change', async (event) => {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                try {
+                    // 读取文件为字节数组
+                    const arrayBuffer = await file.arrayBuffer();
+                    const bytes = new Uint8Array(arrayBuffer);
+
+                    // 解析 osu!.db 文件
+                    const osuDB = new WasmOsuDB(bytes);
+
+                    // 获取基本信息
+                    output.innerHTML = `
+                        <h3>osu!.db 信息</h3>
+                        <p>版本: ${osuDB.version}</p>
+                        <p>玩家名称: ${osuDB.playerName || '未知'}</p>
+                        <p>谱面数量: ${osuDB.beatmapCount()}</p>
+                        <p>文件夹数量: ${osuDB.folderCount}</p>
+                    `;
+
+                    // 获取完整数据作为 JavaScript 对象
+                    const data = osuDB.toObject();
+                    console.log('完整 osu!.db 数据:', data);
+
+                    // 获取谱面列表
+                    const beatmaps = osuDB.getBeatmaps();
+                    console.log('谱面列表:', beatmaps);
+
+                } catch (error) {
+                    output.innerHTML = `<p style="color: red;">错误: ${error.message}</p>`;
+                    console.error('文件解析错误:', error);
+                }
+            });
+
+            // 显示库信息
+            const constants = WasmUtils.getVersionConstants();
+            console.log('库版本信息:', constants);
+            console.log('是否支持压缩:', WasmUtils.hasCompression());
+        }
+
+        run();
+    </script>
+</body>
+</html>
+```
+
+### Node.js 中使用
+
+```javascript
+import { readFileSync } from 'fs';
+import init, { WasmOsuDB, WasmScoresDB, WasmCollectionDB, WasmReplay } from '@osynic/osynic-osudb';
+
+async function parseOsuDB() {
+    // 初始化 WASM 模块
+    await init();
+
+    try {
+        // 解析 osu!.db
+        const osuDbBytes = readFileSync('path/to/osu!.db');
+        const osuDB = new WasmOsuDB(osuDbBytes);
+        
+        console.log(`玩家: ${osuDB.playerName}`);
+        console.log(`谱面数量: ${osuDB.beatmapCount()}`);
+        
+        const data = osuDB.toObject();
+        console.log('完整数据:', JSON.stringify(data, null, 2));
+
+        // 解析 scores.db
+        const scoresDbBytes = readFileSync('path/to/scores.db');
+        const scoresDB = new WasmScoresDB(scoresDbBytes);
+        console.log(`成绩数据库版本: ${scoresDB.version}`);
+
+        // 解析 collection.db
+        const collectionDbBytes = readFileSync('path/to/collection.db');
+        const collectionDB = new WasmCollectionDB(collectionDbBytes);
+        console.log(`收藏夹数量: ${collectionDB.collectionCount()}`);
+
+        // 解析回放文件
+        const replayBytes = readFileSync('path/to/replay.osr');
+        const replay = new WasmReplay(replayBytes);
+        console.log(`回放玩家: ${replay.playerName}`);
+        console.log(`分数: ${replay.score}`);
+
+    } catch (error) {
+        console.error('错误:', error.message);
+    }
+}
+
+parseOsuDB();
+```
+
+### TypeScript 支持
+
+```typescript
+import { readFileSync } from 'fs';
+import init, { 
+    WasmOsuDB, 
+    WasmScoresDB, 
+    WasmCollectionDB, 
+    WasmReplay,
+    OsuDBData,
+    BeatmapData
+} from '@osynic/osynic-osudb';
+
+async function parseWithTypes(): Promise<void> {
+    await init();
+
+    const osuDbBytes = readFileSync('path/to/osu!.db');
+    const osuDB = new WasmOsuDB(osuDbBytes);
+    
+    // 获取类型化数据
+    const data: OsuDBData = osuDB.toObject();
+    const beatmaps: BeatmapData[] = osuDB.getBeatmaps();
+    
+    // 处理谱面数据，具有完整的类型安全
+    beatmaps.forEach((beatmap: BeatmapData) => {
+        console.log(`${beatmap.artist_unicode || beatmap.artist_ascii} - ${beatmap.title_unicode || beatmap.title_ascii}`);
+        console.log(`难度: ${beatmap.difficulty_name}`);
+        console.log(`创建者: ${beatmap.creator}`);
+        console.log(`AR: ${beatmap.approach_rate}, CS: ${beatmap.circle_size}`);
+        console.log('---');
+    });
+}
+```
+
+### React 示例
+
+```tsx
+import React, { useState, useCallback } from 'react';
+import init, { WasmOsuDB } from '@osynic/osynic-osudb';
+
+const OsuDBViewer: React.FC = () => {
+    const [osuDB, setOsuDB] = useState<WasmOsuDB | null>(null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    const handleFileChange = useCallback(async (event: React.ChangeEvent<HTMLInputElement>) => {
+        const file = event.target.files?.[0];
+        if (!file) return;
+
+        setLoading(true);
+        setError(null);
+
+        try {
+            // 初始化 WASM 模块（如果尚未完成）
+            await init();
+
+            const arrayBuffer = await file.arrayBuffer();
+            const bytes = new Uint8Array(arrayBuffer);
+            
+            const db = new WasmOsuDB(bytes);
+            setOsuDB(db);
+        } catch (err) {
+            setError(err instanceof Error ? err.message : '未知错误');
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
+    return (
+        <div>
+            <input
+                type="file"
+                accept=".db"
+                onChange={handleFileChange}
+                disabled={loading}
+            />
+            
+            {loading && <p>加载中...</p>}
+            {error && <p style={{ color: 'red' }}>错误: {error}</p>}
+            
+            {osuDB && (
+                <div>
+                    <h3>osu!.db 信息</h3>
+                    <p>玩家: {osuDB.playerName || '未知'}</p>
+                    <p>版本: {osuDB.version}</p>
+                    <p>谱面数量: {osuDB.beatmapCount()}</p>
+                    
+                    <h4>谱面列表</h4>
+                    <ul>
+                        {osuDB.getBeatmaps().slice(0, 10).map((beatmap, index) => (
+                            <li key={index}>
+                                {beatmap.artist_unicode || beatmap.artist_ascii} - {beatmap.title_unicode || beatmap.title_ascii}
+                                [{beatmap.difficulty_name}]
+                            </li>
+                        ))}
+                    </ul>
+                </div>
+            )}
+        </div>
+    );
+};
+
+export default OsuDBViewer;
+```
+
+## 性能提示
+
+1. **一次初始化**：在应用程序中只调用一次 `init()`
+2. **重用实例**：WASM 对象可以重复使用进行多次操作
+3. **内存管理**：WASM 对象会自动进行垃圾回收
+4. **大文件处理**：对于非常大的文件，考虑分块处理
+
+## 错误处理
+
+WASM 绑定提供详细的错误消息来帮助诊断解析失败：
+
+```javascript
+try {
+    const osuDB = new WasmOsuDB(invalidBytes);
+} catch (error) {
+    if (error.message.includes('Failed to parse OsuDB')) {
+        console.log('无效的 osu!.db 文件格式');
+    }
 }
 ```
 

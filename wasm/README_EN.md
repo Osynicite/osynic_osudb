@@ -1,0 +1,1 @@
+Placeholder text for the English version of the README file.

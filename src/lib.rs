@@ -8,6 +8,10 @@ pub mod entity;
 pub mod error;
 pub mod io;
 
+// WASM bindings (only available with wasm feature)
+#[cfg(feature = "wasm")]
+pub mod wasm;
+
 pub mod prelude {
     // 第一层：顶级数据库入口
     pub use crate::entity::collection::collectiondb::CollectionDB;

@@ -2,6 +2,7 @@ use nom::{
     Err as NomErr, Needed,
     error::{Error as NomError, ErrorKind as NomErrorKind},
 };
+#[cfg(feature = "compression")]
 use xz2::stream::Error as LzmaError;
 
 pub type Result<T> = core::result::Result<T, Error>;
@@ -50,6 +51,7 @@ pub enum ErrorKind {
     ParseIncomplete(Needed),
 }
 
+#[cfg(feature = "compression")]
 impl From<LzmaError> for Error {
     fn from(e: LzmaError) -> Self {
         Error::new(ErrorKind::Compression(e))
