@@ -45,7 +45,6 @@ impl StandardButtonSet {
     }
 }
 
-
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct ManiaButtonSet(pub u32);
 impl ManiaButtonSet {

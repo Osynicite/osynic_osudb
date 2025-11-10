@@ -51,7 +51,7 @@ osynic_osudb = "0.1.4"
 
 # 🚀 快速开始
 
-```rust
+```rust,no_run
 use osynic_osudb::entity::osu::osudb::OsuDB;
 
 fn main() {

@@ -10,7 +10,7 @@ description = "osu!db parser for Osynic, refactoring based on osu-db"
 keywords = ["osynic", "osu", "osudb", "parser", "nom"]
 categories = ["game-development","parser-implementations"]
 license = "MIT"
-homepage = "https://osynic-osudb.deno.dev"
+homepage = "https://osynicite.deno.dev"
 documentation = "https://docs.rs/osynic_osudb"
 repository = "https://github.com/osynicite/osynic_osudb"
 

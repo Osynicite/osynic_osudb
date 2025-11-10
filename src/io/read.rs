@@ -375,10 +375,10 @@ fn parse_replay_data(raw: Option<&[u8]>) -> Result<Option<Vec<Action>>> {
         use liblzma::read::XzDecoder;
         use std::io::Read;
 
-        let mut decoder = XzDecoder::new(&raw[..]);
+        let mut decoder = XzDecoder::new(raw);
         let mut data = Vec::new();
         decoder.read_to_end(&mut data)?;
-        
+
         let actions = actions(&data)?.1;
         return Ok(Some(actions));
     }

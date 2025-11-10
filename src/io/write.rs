@@ -320,20 +320,20 @@ fn write_replay_data<W: Write>(
 ) -> Result<()> {
     let mut raw = raw;
     let compress_buf: Vec<u8>;
-    
+
     if let Some(actions) = actions {
         use liblzma::write::XzEncoder;
 
         let mut encoder = XzEncoder::new(Vec::new(), compression_level);
-        
+
         for action in actions.iter() {
             action.wr(&mut encoder)?;
         }
-        
+
         compress_buf = encoder.finish()?;
         raw = Some(&compress_buf[..]);
     }
-    
+
     let raw = raw.unwrap_or_default();
     //Prefix the data with its length
     (raw.len() as u32).wr(out)?;

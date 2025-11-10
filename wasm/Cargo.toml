@@ -10,7 +10,7 @@ description = "A WebAssembly (WASM) binding for the osynic_osudb crate, enabling
 keywords = ["osynic", "osu", "osudb", "wasm"]
 categories = ["web-programming","wasm"]
 license = "MIT"
-homepage = "https://osynic-osudb.deno.dev"
+homepage = "https://osynicite.deno.dev"
 documentation = "https://hakochest.github.io/osynic-osudb"
 repository = "https://github.com/osynicite/osynic_osudb"
 

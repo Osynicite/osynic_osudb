@@ -19,24 +19,24 @@
 </p>
 
 <p align="center">
-    🚀 High Performance · 🏗️ Well-Structured · 🔧 WASM Support <br/>
-    Feature-complete osu! database parser library supporting osu!.db, collection.db and scores.db parsing.
+    🚀 High Performance · 🏗️ Well-Architected · 🔧 WASM Support <br/>
+    A feature-complete osu! database parser library that supports parsing osu!.db, collection.db, and scores.db.
 </p>
 
 <p align="center">
-  <a href="README.md">🇨🇳 中文</a> ·
+  <a href="README.md">🇨🇳 Chinese</a> ·
   <a href="README_EN.md">🇺🇸 English</a>
 </p>
 
 # 📄 Introduction
 
-A high-performance osu! database parser library rebuilt on the excellent [osu-db](https://crates.io/crates/osu-db) library. Supports all database files including osu!.db, collection.db, scores.db, with full compatibility for osu! 2025+ versions.
+A high-performance osu! database parser library, reconstructed based on the excellent [osu-db](https://crates.io/crates/osu-db) library. Supports all database file formats including osu!.db, collection.db, scores.db, and more, with full compatibility for osu! 2025+ versions.
 
 # ✨ Features
 
 - 🚀 High-performance parsing based on nom8 parser
 - 📦 Support for all osu! database file formats
-- 🌐 Complete WASM support (Browser and Node.js)
+- 🌐 Complete WASM support (browser and Node.js)
 - 🏗️ Read-write separation design for easy maintenance
 - 🔒 Strong type system ensures data safety
 
@@ -49,23 +49,23 @@ A high-performance osu! database parser library rebuilt on the excellent [osu-db
 osynic_osudb = "0.1.4"
 ```
 
-## JavaScript/TypeScript (WASM)
+## JavaScript/TypeScript (via WASM)
 
 ```bash
 npm install @osynicite/osynic-osudb
 ```
 
-## Deno
+or
 
-```typescript
-import * as OsuDB from "https://osynic-osudb.deno.dev/mod.ts";
+```bash
+yarn add @osynicite/osynic-osudb
 ```
 
 # 🚀 Quick Start
 
 ## Rust Example
 
-```rust
+```rust,no_run
 use osynic_osudb::entity::osu::osudb::OsuDB;
 
 fn main() {
@@ -99,70 +99,105 @@ fn main() {
 
 ## JavaScript/TypeScript Example
 
-```typescript
-import { OsuDB } from "@osynicite/osynic-osudb";
+```javascript
+import { OsuDB } from '@osynicite/osynic-osudb';
 
 async function main() {
-    const data = await fetch("osu!.db").then(r => r.arrayBuffer());
-    const osudb = new OsuDB(new Uint8Array(data));
+    const response = await fetch('osu!.db');
+    const buffer = await response.arrayBuffer();
     
-    for (let i = 0; i < Math.min(3, osudb.beatmaps.length); i++) {
-        const beatmap = osudb.beatmaps[i];
-        console.log(`Song ${i + 1}: ${beatmap.artist_unicode} - ${beatmap.title_unicode}`);
+    const osudb = OsuDB.from_buffer(new Uint8Array(buffer));
+    
+    osudb.beatmaps.slice(0, 3).forEach((beatmap, index) => {
+        console.log(`Song ${index + 1}: ${beatmap.artist_unicode} - ${beatmap.title_unicode}`);
         console.log(`Creator: ${beatmap.creator}`);
         console.log(`Difficulty: ${beatmap.difficulty_name}`);
-    }
+        console.log(`Hash: ${beatmap.hash}`);
+        console.log('---------------------------------');
+    });
 }
 
 main();
 ```
 
-🎯 **More Examples**: Check the `examples/` directory for complete examples, or run `cargo run --example example_name` to see them in action.
+🎯 More examples: Check the `examples/` directory for complete examples, or run `cargo run --example example_name` to see the actual effect.
 
 # 📚 Documentation
 
-- **Rust Documentation**: Available on [docs.rs](https://docs.rs/osynic_osudb)
-- **TypeScript Documentation**: Available on [Typedoc](https://hakochest.github.io/osynic-osudb/)
-- **Deno Module**: Available on [deno.dev](https://osynic-osudb.deno.dev)
+- [Rust API Documentation](https://docs.rs/osynic_osudb)
+- [TypeScript/JavaScript Documentation](https://hakochest.github.io/osynic-osudb/)
+- [Deno Documentation](https://osynic-osudb.deno.dev)
 
 # ❤️ Acknowledgments
 
-This project is rebuilt on the basis of the excellent [osu-db](https://crates.io/crates/osu-db) library with architectural optimizations, performance improvements, and version compatibility enhancements.
+This project has been reconstructed based on the [osu-db](https://crates.io/crates/osu-db) library with architectural optimizations, performance improvements, and version compatibility enhancements.
 
-Thanks to the authors of [osu-db](https://crates.io/crates/osu-db)!
+Special thanks to the authors of [osu-db](https://crates.io/crates/osu-db)!
 
-The `osu-db` project is based on [Unlicense](licenses/LICENSE-osu-db). The project license is placed in the `licenses/` directory.
+The `osu-db` project is based on [Unlicense](licenses/LICENSE-osu-db), and the project licenses are placed in the `licenses/` directory.
 
-# 🤝 Contributing Guide
+# 🤝 Contribution Guidelines
 
 ## How to Contribute
 
-Welcome to submit PRs or Issues! If you find any problems or have improvement suggestions, please follow these guidelines:
+We welcome PRs and Issues! If you discover any issues or have improvement suggestions, please follow these guidelines:
 
 ### Code Contribution Standards
 
-- **Coding Standards**: Follow the official Rust coding standards
-- **Test Requirements**: New features must include test cases
+- **Coding Standards**: Follow [Rust official coding standards](https://doc.rust-lang.org/1.0.0/style/)
+- **Testing Requirements**: New features must include test cases
 - **Code Quality**: Run `cargo fmt` and `cargo clippy` before submitting
-- **Documentation Updates**: Update related documentation and examples when necessary
+- **Documentation Updates**: Update relevant documentation and examples as needed
 
 ### Issue Submission Guidelines
 
 - Describe the specific scenario of the problem
 - Provide reproduction steps and error messages
-- Include relevant API endpoints and parameter information
-- Attach osu!.db file samples if applicable (if the issue is related to database parsing)
+- Include relevant API endpoints and parameters if applicable
 
-# 📜 Open Source License
+## Development Setup
 
-This project is open-sourced under the [MIT License](LICENSE). Please respect the original author's copyright.
+<!-- markdownlint-disable MD029 -->
+1. Clone the repository:
 
-# 🔗 Related Links
+```bash
+git clone https://github.com/osynicite/osynic_osudb.git
+cd osynic_osudb
+```
 
-- [osu! Official Website](https://osu.ppy.sh/)
-- [osu-db (Original Library)](https://crates.io/crates/osu-db)
-- [Discord Community](https://discord.gg/DRnZSES3BC)
+2. Build the project:
+
+```bash
+cargo build
+```
+
+3. Run tests:
+
+```bash
+cargo test
+```
+
+4. Format code:
+
+```bash
+cargo fmt
+```
+
+5. Lint with clippy:
+
+```bash
+cargo clippy --all-targets --all-features
+```
+<!-- markdownlint-enable MD029 -->
+
+# 📜 License
+
+This project is open source under the [MIT License](LICENSE). Please respect the original author's copyright.
 
 ---
 
-**If you find this project helpful, please give it a ⭐ Star!**
+<!-- markdownlint-disable MD036 -->
+**Made with ❤️ by the Osynicite team**
+<!-- markdownlint-enable MD036 -->
+
+For support, join us on [Discord](https://discord.gg/DRnZSES3BC)
