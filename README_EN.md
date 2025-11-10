@@ -65,7 +65,7 @@ yarn add @osynicite/osynic-osudb
 
 ## Rust Example
 
-```rust,no_run
+```rust,no_run,ignore
 use osynic_osudb::entity::osu::osudb::OsuDB;
 
 fn main() {

@@ -116,7 +116,6 @@ impl CollectionDB {
 }
 
 /// Utility functions for WASM
-
 /// Get library version constants
 #[wasm_bindgen(js_name = getVersionConstants)]
 pub fn get_version_constants() -> JsValue {
