@@ -8,8 +8,7 @@ pub mod entity;
 pub mod error;
 pub mod io;
 
-// WASM bindings (only available with wasm feature)
-#[cfg(feature = "wasm")]
+#[cfg(all(feature = "wasm", feature = "export"))]
 pub mod wasm;
 
 pub mod prelude {

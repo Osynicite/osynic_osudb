@@ -320,24 +320,20 @@ fn write_replay_data<W: Write>(
 ) -> Result<()> {
     let mut raw = raw;
     let compress_buf: Vec<u8>;
-    #[cfg(feature = "compression")]
-    {
-        if let Some(actions) = actions {
-            use xz2::{
-                stream::{LzmaOptions, Stream},
-                write::XzEncoder,
-            };
-            let mut encoder = XzEncoder::new_stream(
-                Vec::new(),
-                Stream::new_lzma_encoder(&LzmaOptions::new_preset(compression_level)?)?,
-            );
-            for action in actions.iter() {
-                action.wr(&mut encoder)?;
-            }
-            compress_buf = encoder.finish()?;
-            raw = Some(&compress_buf[..]);
+    
+    if let Some(actions) = actions {
+        use liblzma::write::XzEncoder;
+
+        let mut encoder = XzEncoder::new(Vec::new(), compression_level);
+        
+        for action in actions.iter() {
+            action.wr(&mut encoder)?;
         }
+        
+        compress_buf = encoder.finish()?;
+        raw = Some(&compress_buf[..]);
     }
+    
     let raw = raw.unwrap_or_default();
     //Prefix the data with its length
     (raw.len() as u32).wr(out)?;

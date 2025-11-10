@@ -1,6 +1,8 @@
 use serde::{Deserialize, Serialize};
 
 /// TODO: osu-db: Figure out grades.
+#[cfg_attr(feature = "export", derive(tsify::Tsify))]
+#[cfg_attr(feature = "export", tsify(into_wasm_abi, from_wasm_abi))]
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
 pub enum Grade {
     SSPlus,
@@ -13,6 +15,7 @@ pub enum Grade {
     D,
     Unplayed,
 }
+
 impl Grade {
     pub fn raw(self) -> u8 {
         use self::Grade::*;

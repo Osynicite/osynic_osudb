@@ -1,6 +1,8 @@
 use crate::io::bit::Bit;
 use serde::{Deserialize, Serialize};
 
+#[cfg_attr(feature = "export", derive(tsify::Tsify))]
+#[cfg_attr(feature = "export", tsify(into_wasm_abi, from_wasm_abi))]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 #[repr(u32)]
 pub enum StandardButton {
@@ -14,6 +16,7 @@ impl StandardButton {
         *self as u32
     }
 }
+
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct StandardButtonSet(pub u32);
 impl StandardButtonSet {
@@ -41,6 +44,7 @@ impl StandardButtonSet {
         self.set_down(button, false)
     }
 }
+
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct ManiaButtonSet(pub u32);

@@ -2,8 +2,6 @@ use nom::{
     Err as NomErr, Needed,
     error::{Error as NomError, ErrorKind as NomErrorKind},
 };
-#[cfg(feature = "compression")]
-use xz2::stream::Error as LzmaError;
 
 pub type Result<T> = core::result::Result<T, Error>;
 
@@ -44,17 +42,15 @@ impl From<ErrorKind> for Error {
 // ErrorKind
 
 pub enum ErrorKind {
-    #[cfg(feature = "compression")]
-    Compression(LzmaError),
+    LzmaError(liblzma::stream::Error),
     IoError(std::io::Error),
     ParseError(NomErrorKind),
     ParseIncomplete(Needed),
 }
 
-#[cfg(feature = "compression")]
-impl From<LzmaError> for Error {
-    fn from(e: LzmaError) -> Self {
-        Error::new(ErrorKind::Compression(e))
+impl From<liblzma::stream::Error> for Error {
+    fn from(e: liblzma::stream::Error) -> Self {
+        Error::new(ErrorKind::LzmaError(e))
     }
 }
 
@@ -77,8 +73,7 @@ impl From<std::io::Error> for Error {
 impl std::fmt::Display for ErrorKind {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
-            #[cfg(feature = "compression")]
-            ErrorKind::Compression(e) => write!(f, "Compression error: {e}"),
+            ErrorKind::LzmaError(e) => write!(f, "LZMA compression error: {e}"),
             ErrorKind::IoError(e) => write!(f, "IO error: {e}"),
             ErrorKind::ParseError(e) => write!(f, "Parse error: {e:?}"),
             ErrorKind::ParseIncomplete(needed) => write!(f, "Parse incomplete: {needed:?}"),
@@ -89,8 +84,7 @@ impl std::fmt::Display for ErrorKind {
 impl std::fmt::Debug for ErrorKind {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
         match self {
-            #[cfg(feature = "compression")]
-            ErrorKind::Compression(e) => write!(f, "Compression error: {e}"),
+            ErrorKind::LzmaError(e) => write!(f, "LZMA compression error: {e}"),
             ErrorKind::IoError(e) => write!(f, "IO error: {e}"),
             ErrorKind::ParseError(e) => write!(f, "Parse error: {e:?}"),
             ErrorKind::ParseIncomplete(needed) => write!(f, "Parse incomplete: {needed:?}"),

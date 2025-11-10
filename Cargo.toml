@@ -1,6 +1,6 @@
 [package]
 name = "osynic_osudb"
-version = "0.1.3"
+version = "0.1.4"
 edition = "2024"
 rust-version = "1.85.0"
 authors = [
@@ -8,8 +8,9 @@ authors = [
 ]
 description = "osu!db parser for Osynic, refactoring based on osu-db"
 keywords = ["osynic", "osu", "osudb", "parser", "nom"]
-categories = ["game-development","parsing"]
+categories = ["game-development","parser-implementations"]
 license = "MIT"
+homepage = "https://osynic-osudb.deno.dev"
 documentation = "https://docs.rs/osynic_osudb"
 repository = "https://github.com/osynicite/osynic_osudb"
 
@@ -17,20 +18,21 @@ repository = "https://github.com/osynicite/osynic_osudb"
 nom = "8.0.0" 
 chrono = { version = "0.4.42", features = ["serde"] }
 serde = { version = "1.0.228", features = ["derive"] }
-xz2 = { version = "0.1.7", optional = true }
+liblzma = { version = "0.4.5" }
 
 # WASM dependencies
-wasm-bindgen = { version = "0.2.104", optional = true }
+tsify = { version = "0.5.6", optional = true }
+wasm-bindgen = { version = "0.2.105", optional = true }
 serde-wasm-bindgen = { version = "0.6.5", optional = true }
-js-sys = { version = "0.3.81", optional = true }
-web-sys = { version = "0.3.81", optional = true }
+js-sys = { version = "0.3.82", optional = true }
+web-sys = { version = "0.3.82", optional = true }
 console_error_panic_hook = { version = "0.1.7", optional = true }
 serde_json = { version = "1.0.145", optional = true }
 
 [features]
-default = ["compression"]
-compression = ["xz2"]
 wasm = ["wasm-bindgen", "serde-wasm-bindgen", "js-sys", "web-sys", "console_error_panic_hook", "serde_json"]
+export = ["tsify"]
+
 
 [lib]
 crate-type = ["cdylib", "rlib"]

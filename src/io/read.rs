@@ -371,19 +371,16 @@ pub fn grade(bytes: &[u8]) -> IResult<&[u8], Grade> {
 }
 
 fn parse_replay_data(raw: Option<&[u8]>) -> Result<Option<Vec<Action>>> {
-    #[cfg(feature = "compression")]
-    {
-        if let Some(raw) = raw {
-            use std::io::Write;
-            use xz2::{stream::Stream, write::XzDecoder};
+    if let Some(raw) = raw {
+        use liblzma::read::XzDecoder;
+        use std::io::Read;
 
-            let mut decoder =
-                XzDecoder::new_stream(Vec::new(), Stream::new_lzma_decoder(u64::MAX)?);
-            decoder.write_all(raw)?;
-            let data = decoder.finish()?;
-            let actions = actions(&data)?.1;
-            return Ok(Some(actions));
-        }
+        let mut decoder = XzDecoder::new(&raw[..]);
+        let mut data = Vec::new();
+        decoder.read_to_end(&mut data)?;
+        
+        let actions = actions(&data)?.1;
+        return Ok(Some(actions));
     }
     Ok(None)
 }

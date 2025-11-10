@@ -6,6 +6,8 @@ use crate::entity::osu::field::time::TimingPoint;
 use chrono::{DateTime, Utc};
 use serde::{Deserialize, Serialize};
 
+#[cfg_attr(feature = "export", derive(tsify::Tsify))]
+#[cfg_attr(feature = "export", tsify(into_wasm_abi, from_wasm_abi))]
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 pub struct Beatmap {
     pub artist_ascii: Option<String>,
@@ -21,6 +23,7 @@ pub struct Beatmap {
     pub hitcircle_count: u16,
     pub slider_count: u16,
     pub spinner_count: u16,
+    #[cfg_attr(feature = "export", tsify(type = "Date"))]
     pub last_modified: DateTime<Utc>,
     pub approach_rate: f32,
     pub circle_size: f32,
@@ -49,9 +52,11 @@ pub struct Beatmap {
     pub tags: Option<String>,
     pub online_offset: u16,
     pub title_font: Option<String>,
+    #[cfg_attr(feature = "export", tsify(optional, type = "Date"))]
     pub last_played: Option<DateTime<Utc>>,
     pub is_osz2: bool,
     pub folder_name: Option<String>,
+    #[cfg_attr(feature = "export", tsify(type = "Date"))]
     pub last_online_check: DateTime<Utc>,
     pub ignore_sounds: bool,
     pub ignore_skin: bool,
