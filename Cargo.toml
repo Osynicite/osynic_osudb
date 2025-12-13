@@ -22,10 +22,10 @@ liblzma = { version = "0.4.5" }
 
 # WASM dependencies
 tsify = { version = "0.5.6", optional = true }
-wasm-bindgen = { version = "0.2.105", optional = true }
+wasm-bindgen = { version = "0.2.106", optional = true }
 serde-wasm-bindgen = { version = "0.6.5", optional = true }
-js-sys = { version = "0.3.82", optional = true }
-web-sys = { version = "0.3.82", optional = true }
+js-sys = { version = "0.3.83", optional = true }
+web-sys = { version = "0.3.83", optional = true }
 console_error_panic_hook = { version = "0.1.7", optional = true }
 serde_json = { version = "1.0.145", optional = true }
 
