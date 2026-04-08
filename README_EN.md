@@ -8,7 +8,7 @@
 <p align="center">
   <a href="https://www.rust-lang.org/" target="_blank"><img src="https://img.shields.io/badge/Rust-1.85%2B-blue"/></a>
   <a href="https://crates.io/crates/osynic_osudb" target="_blank"><img src="https://img.shields.io/crates/v/osynic_osudb"/></a>
-  <a href="https://docs.rs/osynic_osudb" target="_blank"><img src="https://img.shields.io/docsrs/osynic_osudb/0.1.4"/></a>
+  <a href="https://docs.rs/osynic_osudb" target="_blank"><img src="https://img.shields.io/docsrs/osynic_osudb/0.1.5"/></a>
   <a href="https://www.npmjs.com/package/@osynicite/osynic-osudb" target="_blank"><img src="https://img.shields.io/npm/v/@osynicite/osynic-osudb"/></a>
   <a href="https://www.npmjs.com/package/@osynicite/osynic-osudb" target="_blank"><img src="https://img.shields.io/npm/dm/@osynicite/osynic-osudb"/></a>
   <a href="https://hakochest.github.io/osynic-osudb/" target="_blank"><img src="https://img.shields.io/badge/Typedoc-Documentation-blue"/></a>
@@ -46,19 +46,7 @@ A high-performance osu! database parser library, reconstructed based on the exce
 
 ```toml
 [dependencies]
-osynic_osudb = "0.1.4"
-```
-
-## JavaScript/TypeScript (via WASM)
-
-```bash
-npm install @osynicite/osynic-osudb
-```
-
-or
-
-```bash
-yarn add @osynicite/osynic-osudb
+osynic_osudb = "0.1.5"
 ```
 
 # 🚀 Quick Start
@@ -95,29 +83,6 @@ fn main() {
         println!("---------------------------------");
     }
 }
-```
-
-## JavaScript/TypeScript Example
-
-```javascript
-import { OsuDB } from '@osynicite/osynic-osudb';
-
-async function main() {
-    const response = await fetch('osu!.db');
-    const buffer = await response.arrayBuffer();
-    
-    const osudb = OsuDB.from_buffer(new Uint8Array(buffer));
-    
-    osudb.beatmaps.slice(0, 3).forEach((beatmap, index) => {
-        console.log(`Song ${index + 1}: ${beatmap.artist_unicode} - ${beatmap.title_unicode}`);
-        console.log(`Creator: ${beatmap.creator}`);
-        console.log(`Difficulty: ${beatmap.difficulty_name}`);
-        console.log(`Hash: ${beatmap.hash}`);
-        console.log('---------------------------------');
-    });
-}
-
-main();
 ```
 
 🎯 More examples: Check the `examples/` directory for complete examples, or run `cargo run --example example_name` to see the actual effect.

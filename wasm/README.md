@@ -116,7 +116,7 @@ for (let i = 0; i < Math.min(3, osudb.beatmaps.length); i++) {
 
 ```vue
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 p-6 text-white">
+  <div class="min-h-screen bg-linear-to-br from-gray-900 to-gray-800 p-6 text-white">
     <div class="max-w-6xl mx-auto space-y-6">
       <!-- Header -->
       <div class="text-center space-y-2 mb-8">
@@ -170,7 +170,7 @@ for (let i = 0; i < Math.min(3, osudb.beatmaps.length); i++) {
         <div 
           v-for="(beatmap, index) in beatmaps.slice(0, 20)" 
           :key="index"
-          class="bg-gradient-to-br from-gray-800 to-gray-900 border border-gray-700 rounded-lg p-4 hover:border-blue-500/50 transition group cursor-pointer"
+          class="bg-linear-to-br from-gray-800 to-gray-900 border border-gray-700 rounded-lg p-4 hover:border-blue-500/50 transition group cursor-pointer"
         >
           <!-- Title -->
           <h3 class="text-lg font-bold text-blue-300 group-hover:text-blue-200 transition truncate">

@@ -7,11 +7,13 @@ pub enum RankedStatus {
     Unknown,
     Unsubmitted,
     PendingWipGraveyard,
+    Unused,
     Ranked,
     Approved,
     Qualified,
     Loved,
 }
+
 impl RankedStatus {
     pub fn from_raw(byte: u8) -> Option<RankedStatus> {
         use self::RankedStatus::*;
@@ -19,6 +21,7 @@ impl RankedStatus {
             0 => Unknown,
             1 => Unsubmitted,
             2 => PendingWipGraveyard,
+            3 => Unused,
             4 => Ranked,
             5 => Approved,
             6 => Qualified,
@@ -33,6 +36,7 @@ impl RankedStatus {
             Unknown => 0,
             Unsubmitted => 1,
             PendingWipGraveyard => 2,
+            Unused => 3,
             Ranked => 4,
             Approved => 5,
             Qualified => 6,

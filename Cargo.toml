@@ -1,6 +1,6 @@
 [package]
 name = "osynic_osudb"
-version = "0.1.4"
+version = "0.1.5"
 edition = "2024"
 rust-version = "1.85.0"
 authors = [
@@ -16,18 +16,18 @@ repository = "https://github.com/osynicite/osynic_osudb"
 
 [dependencies]
 nom = "8.0.0" 
-chrono = { version = "0.4.42", features = ["serde"] }
+chrono = { version = "0.4.44", features = ["serde"] }
 serde = { version = "1.0.228", features = ["derive"] }
-liblzma = { version = "0.4.5" }
+liblzma = { version = "0.4.6" }
 
 # WASM dependencies
 tsify = { version = "0.5.6", optional = true }
-wasm-bindgen = { version = "0.2.106", optional = true }
+wasm-bindgen = { version = "0.2.117", optional = true }
 serde-wasm-bindgen = { version = "0.6.5", optional = true }
-js-sys = { version = "0.3.83", optional = true }
-web-sys = { version = "0.3.83", optional = true }
+js-sys = { version = "0.3.94", optional = true }
+web-sys = { version = "0.3.94", optional = true }
 console_error_panic_hook = { version = "0.1.7", optional = true }
-serde_json = { version = "1.0.145", optional = true }
+serde_json = { version = "1.0.149", optional = true }
 
 [features]
 wasm = ["wasm-bindgen", "serde-wasm-bindgen", "js-sys", "web-sys", "console_error_panic_hook", "serde_json"]

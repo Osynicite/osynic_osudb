@@ -16,3 +16,9 @@
 ### 0.0.15
 
 - Refer to the fix method of [fix(Listing): support breaking format change 20250107](https://github.com/kovaxis/osu-db/pull/5), adjusted the existing code
+
+## 0.1
+
+### 0.1.5
+
+- Add `Unused` enum variant to `RankedStatus` to handle unused status values in osu! database files.

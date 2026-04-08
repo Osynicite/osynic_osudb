@@ -10,6 +10,7 @@ pub enum Mode {
     CatchTheBeat,
     Mania,
 }
+
 impl Mode {
     pub fn raw(self) -> u8 {
         self as u8
